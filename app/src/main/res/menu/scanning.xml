@@ -1,0 +1,34 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.umn.mto.android.constructionidentification.ScanningActivity">
+
+    <item
+        android:id="@+id/menu_refresh"
+        android:checkable="false"
+        android:orderInCategory="1"
+        android:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/menu_scan"
+        android:orderInCategory="100"
+        android:title="@string/menu_scan"
+        android:showAsAction="ifRoom|withText"/>
+    <item
+        android:id="@+id/menu_stop"
+        android:orderInCategory="101"
+        android:title="@string/menu_stop"
+        android:showAsAction="ifRoom|withText"/>
+    <item
+        android:id="@+id/enter_distance"
+        android:title="@string/enter_distance"
+        android:showAsAction="never"/>
+    <item
+        android:id="@+id/enable_calls_driving"
+        android:title="@string/enable_calls"
+        android:showAsAction="never"/>
+    <item
+        android:id="@+id/disable_calls_driving"
+        android:title="@string/disable_calls"
+        android:showAsAction="never"/>
+
+</menu>
