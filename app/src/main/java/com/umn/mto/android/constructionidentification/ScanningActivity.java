@@ -73,7 +73,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
 
                 @Override
                 public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-                    if(null != device.getName() && !device.getName().startsWith("mto"))
+                    if(null == device.getName() || device.getName().startsWith("mto"))
                         return;
                     if (null == device.getName())
                         return;
