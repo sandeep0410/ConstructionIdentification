@@ -30,5 +30,9 @@
         android:id="@+id/disable_calls_driving"
         android:title="@string/disable_calls"
         android:showAsAction="never"/>
+    <item
+        android:id="@+id/settings"
+        android:showAsAction="never"
+        android:title="@string/action_settings"/>
 
 </menu>
