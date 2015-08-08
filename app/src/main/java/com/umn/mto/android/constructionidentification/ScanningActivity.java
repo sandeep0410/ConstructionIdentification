@@ -38,6 +38,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.opencsv.CSVWriter;
+import com.umn.mto.android.constructionidentification.settings.SettingDialogFragment;
+import com.umn.mto.android.constructionidentification.settings.Settings;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -61,7 +63,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
     private float mSpeed = 0;
     private Handler mHandler;
     private HashMap<BluetoothDevice, Integer> scannedDevices = new HashMap<BluetoothDevice, Integer>();
-    private String mDistance;
+    private static String mDistance;
     private double mLatitude = 0.0;
     private double mLongitude = 0.0;
     private Toast mToast;
@@ -71,8 +73,8 @@ public class ScanningActivity extends ListActivity implements LocationListener {
 
                 @Override
                 public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-                    //if(!device.getName().startsWith("MTO"))
-                    //return;
+                    if(null != device.getName() && !device.getName().startsWith("mto"))
+                        return;
                     if (null == device.getName())
                         return;
                     startNotificationToneAndVibrate(device, rssi);
@@ -265,8 +267,15 @@ public class ScanningActivity extends ListActivity implements LocationListener {
             case R.id.disable_calls_driving:
                 startService(new Intent(ScanningActivity.this, SpeedDetectionService.class));
                 break;
+            case R.id.settings:
+                createSettingsDialog();
         }
         return true;
+    }
+
+    private void createSettingsDialog(){
+        SettingDialogFragment dialog = new SettingDialogFragment(this);
+        dialog.show(getFragmentManager(), "dialog");
     }
 
     private void deleteCSVfile() {
@@ -409,10 +418,14 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                 Log.d("sandeep", "vibrator called " + device.getName() + " " + rssi);
                 if (scannedDevices.containsKey(device))
                     return;
-                mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-                mVibrator.vibrate(2000);
-                mBeep = new ToneGenerator(AudioManager.STREAM_MUSIC, ToneGenerator.MAX_VOLUME);
-                mBeep.startTone(ToneGenerator.TONE_DTMF_0, 2000);
+                if(Settings.vibration) {
+                    mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+                    mVibrator.vibrate(2000);
+                }
+                if(Settings.alarm) {
+                    mBeep = new ToneGenerator(AudioManager.STREAM_MUSIC, ToneGenerator.MAX_VOLUME);
+                    mBeep.startTone(ToneGenerator.TONE_DTMF_0, 2000);
+                }
                 //beep.release();
             }
         });
@@ -422,7 +435,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
     }
 
     protected void writeDatatoFile(BluetoothDevice device, int rssi) {
-        File f = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/BLE/");
+        File f = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MTO_BLE/");
         File temp = new File(f.getAbsolutePath() + "/data.csv");
         Log.d("sandeep1", f.getAbsolutePath() + " " + temp.getAbsolutePath());
         Log.d("sandeep1", "" + (f.exists()) + " " + temp.exists());
@@ -586,13 +599,14 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         }
     }
 
-    public class InputDistanceDialog extends DialogFragment {
+    public static class InputDistanceDialog extends DialogFragment {
         EditText input;
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             input = new EditText(getActivity());
+            input.setPadding(20,10,20,10);
             builder.setTitle(getResources().getString(R.string.distance_dialog_title));
             input.setHint(getResources().getString(R.string.distance_default_text));
             builder.setView(input);
