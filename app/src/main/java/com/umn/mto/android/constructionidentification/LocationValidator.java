@@ -34,8 +34,8 @@ public class LocationValidator implements RaysAlgorithm {
             return false;
         }
         double m = (aY - bY) / (aX - bX);
-        double bee = (-aX) * m + aY;
-        double x = (pY - bee) / m;
+        double b = (-aX) * m + aY;
+        double x = (pY - b) / m;
         return x > pX;
     }
 
