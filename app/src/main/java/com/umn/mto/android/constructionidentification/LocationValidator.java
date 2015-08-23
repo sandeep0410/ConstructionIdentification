@@ -31,13 +31,11 @@ public class LocationValidator implements RaysAlgorithm {
         double pX = cur.getLongitude();
 
         if ((aY > pY && bY > pY) || (aY < pY && bY < pY) || (aX < pX && bX < pX)) {
-            return false; // a and b can't both be above or below pt.y, and a or b must be east of pt.x
+            return false;
         }
-
-        double m = (aY - bY) / (aX - bX);               // Rise over run
-        double bee = (-aX) * m + aY;                // y = mx + b
-        double x = (pY - bee) / m;                  // algebra is neat!
-
+        double m = (aY - bY) / (aX - bX);
+        double b = (-aX) * m + aY;
+        double x = (pY - b) / m;
         return x > pX;
     }
 
