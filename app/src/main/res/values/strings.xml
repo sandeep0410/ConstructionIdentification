@@ -27,5 +27,6 @@
     <string name="distance_default_text">Test Data</string>
     <string name="enable_calls">Enable Driving Calls</string>
     <string name="disable_calls">Disable Driving Calls</string>
+    <string name="test">Test</string>
 
 </resources>

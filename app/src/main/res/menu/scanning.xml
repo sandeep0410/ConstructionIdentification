@@ -1,5 +1,4 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.umn.mto.android.constructionidentification.ScanningActivity">
 
@@ -7,32 +6,36 @@
         android:id="@+id/menu_refresh"
         android:checkable="false"
         android:orderInCategory="1"
-        android:showAsAction="ifRoom"/>
+        android:showAsAction="ifRoom" />
     <item
         android:id="@+id/menu_scan"
         android:orderInCategory="100"
-        android:title="@string/menu_scan"
-        android:showAsAction="ifRoom|withText"/>
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/menu_scan" />
     <item
         android:id="@+id/menu_stop"
         android:orderInCategory="101"
-        android:title="@string/menu_stop"
-        android:showAsAction="ifRoom|withText"/>
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/menu_stop" />
     <item
         android:id="@+id/enter_distance"
-        android:title="@string/enter_distance"
-        android:showAsAction="never"/>
+        android:showAsAction="never"
+        android:title="@string/enter_distance" />
     <item
         android:id="@+id/enable_calls_driving"
-        android:title="@string/enable_calls"
-        android:showAsAction="never"/>
+        android:showAsAction="never"
+        android:title="@string/enable_calls" />
     <item
         android:id="@+id/disable_calls_driving"
-        android:title="@string/disable_calls"
-        android:showAsAction="never"/>
+        android:showAsAction="never"
+        android:title="@string/disable_calls" />
     <item
         android:id="@+id/settings"
         android:showAsAction="never"
-        android:title="@string/action_settings"/>
+        android:title="@string/action_settings" />
+    <item
+        android:id="@+id/test"
+        android:showAsAction="never"
+        android:title="@string/test" />
 
 </menu>

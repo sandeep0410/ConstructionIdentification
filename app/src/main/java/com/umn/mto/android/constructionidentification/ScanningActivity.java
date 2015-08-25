@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 public class ScanningActivity extends ListActivity implements LocationListener {
@@ -73,7 +74,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
 
                 @Override
                 public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-                    if(null == device.getName() || device.getName().startsWith("mto"))
+                    if (null == device.getName() || device.getName().startsWith("mto"))
                         return;
                     if (null == device.getName())
                         return;
@@ -269,11 +270,54 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                 break;
             case R.id.settings:
                 createSettingsDialog();
+                break;
+            case R.id.test:
+                testGeoPositions();
         }
         return true;
     }
 
-    private void createSettingsDialog(){
+    private void testGeoPositions() {
+
+        LocationValidator validator = new LocationValidator();
+        List<Location> list = new ArrayList<Location>();
+
+        Location location = new Location("ManualTest");
+        location.setLatitude(41.893368);
+        location.setLongitude(-87.622709);
+
+        Location location1 = new Location("ManualTest");
+        location1.setLatitude(41.893447);
+        location1.setLongitude(-87.617795);
+
+        Location location2 = new Location("ManualTest");
+        location2.setLatitude(41.891075);
+        location2.setLongitude(-87.617709);
+
+        Location location3 = new Location("ManualTest");
+        location3.setLatitude(41.890956);
+        location3.setLongitude(-87.622644);
+
+        Location test1 = new Location("ManualTest");
+        test1.setLatitude(41.892689);
+        test1.setLongitude(-87.614630);
+
+        Location test2 = new Location("ManualTest");
+        test2.setLatitude(41.892625);
+        test2.setLongitude(-87.620263);
+
+        list.add(location);
+        list.add(location1);
+        list.add(location2);
+        list.add(location3);
+
+        mToast.setText("Result: " + test1.getLatitude() + " " + test1.getLongitude() + validator.isPointInPolygon(list, test1));
+        mToast.show();
+        //mToast.setText("Result: " +test2.getLatitude() +" " +test2.getLongitude() + validator.isPointInPolygon(list, test2));
+        //mToast.show();
+    }
+
+    private void createSettingsDialog() {
         SettingDialogFragment dialog = new SettingDialogFragment(this);
         dialog.show(getFragmentManager(), "dialog");
     }
@@ -340,7 +384,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         /*final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
-		if (device == null) return;
+        if (device == null) return;
 		final Intent intent = new Intent(this, ScanningActivity.class);
 		intent.putExtra(ScanningActivity.EXTRAS_DEVICE_NAME, device.getName());
 		intent.putExtra(ScanningActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
@@ -418,11 +462,11 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                 Log.d("sandeep", "vibrator called " + device.getName() + " " + rssi);
                 if (scannedDevices.containsKey(device))
                     return;
-                if(Settings.vibration) {
+                if (Settings.vibration) {
                     mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
                     mVibrator.vibrate(2000);
                 }
-                if(Settings.alarm) {
+                if (Settings.alarm) {
                     mBeep = new ToneGenerator(AudioManager.STREAM_MUSIC, ToneGenerator.MAX_VOLUME);
                     mBeep.startTone(ToneGenerator.TONE_DTMF_0, 2000);
                 }
@@ -606,7 +650,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             input = new EditText(getActivity());
-            input.setPadding(20,10,20,10);
+            input.setPadding(20, 10, 20, 10);
             builder.setTitle(getResources().getString(R.string.distance_dialog_title));
             input.setHint(getResources().getString(R.string.distance_default_text));
             builder.setView(input);

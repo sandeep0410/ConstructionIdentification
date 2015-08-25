@@ -2,11 +2,11 @@ package com.umn.mto.android.constructionidentification.interfaces;
 
 import android.location.Location;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Sandeep on 8/23/2015.
  */
 public interface RaysAlgorithm {
-    boolean isPointInPolygon(ArrayList<Location> polygonPoints, Location current);
+    boolean isPointInPolygon(List<Location> polygonPoints, Location current);
 }
