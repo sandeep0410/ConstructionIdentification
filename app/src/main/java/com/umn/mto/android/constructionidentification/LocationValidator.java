@@ -5,13 +5,14 @@ import android.location.Location;
 import com.umn.mto.android.constructionidentification.interfaces.RaysAlgorithm;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Sandeep on 8/23/2015.
  */
 public class LocationValidator implements RaysAlgorithm {
     @Override
-    public boolean isPointInPolygon(ArrayList<Location> polygonPoints, Location current) {
+    public boolean isPointInPolygon(List<Location> polygonPoints, Location current) {
         int length = polygonPoints.size();
         int count = 0;
         for (int i = 1; i < length - 1; i++) {
