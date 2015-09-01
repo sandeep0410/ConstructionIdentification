@@ -1,5 +1,6 @@
 package com.umn.mto.android.constructionidentification;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
@@ -10,6 +11,9 @@ import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,6 +23,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -61,6 +66,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
     Vibrator mVibrator;
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private BluetoothAdapter mBluetoothAdapter;
+    BluetoothLeScanner mScanner;
     private float mSpeed = 0;
     private Handler mHandler;
     private HashMap<BluetoothDevice, Integer> scannedDevices = new HashMap<BluetoothDevice, Integer>();
@@ -68,13 +74,15 @@ public class ScanningActivity extends ListActivity implements LocationListener {
     private double mLatitude = 0.0;
     private double mLongitude = 0.0;
     private Toast mToast;
+    private int mSdkVersion;
     // Device scan callback.
     private BluetoothAdapter.LeScanCallback mLeScanCallback =
             new BluetoothAdapter.LeScanCallback() {
 
                 @Override
                 public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-                    if (null == device.getName() || device.getName().startsWith("mto"))
+                    Log.d("sandeep","new Device: " +device.getName());
+                   if (null == device.getName() || device.getName().startsWith("mto"))
                         return;
                     if (null == device.getName())
                         return;
@@ -98,6 +106,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                 }
             };
 
+    private ScanCallback mLatestScanCallback;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,6 +115,10 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         mToast = Toast.makeText(ScanningActivity.this, "",
                 Toast.LENGTH_SHORT);
         mHandler = new Handler();
+        mSdkVersion = Build.VERSION.SDK_INT;
+        if(mSdkVersion > Build.VERSION_CODES.KITKAT){
+            initializeLatestScanCallBack();
+        }
         mDistance = "-1";
         if (!speedDetectionServiceRunning()) {
             startService(new Intent(ScanningActivity.this, SpeedDetectionService.class));
@@ -122,7 +135,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
-
+       mScanner = mBluetoothAdapter.getBluetoothLeScanner();
         // Checks if Bluetooth is supported on the device.
         if (mBluetoothAdapter == null) {
             Toast.makeText(this, R.string.error_bluetooth_not_supported, Toast.LENGTH_SHORT).show();
@@ -146,6 +159,43 @@ public class ScanningActivity extends ListActivity implements LocationListener {
             mLongitude = locationNET.getLongitude();
         }
         createDistanceDialog();
+    }
+
+    @TargetApi(21)
+    private void initializeLatestScanCallBack() {
+            mLatestScanCallback = new ScanCallback() {
+                @Override
+                public void onScanResult(int callbackType, ScanResult result) {
+                    Log.d("sandeep","new Device: " +result.toString() +" " + result.describeContents());
+                    final BluetoothDevice device = result.getDevice();
+                    int rssi = result.getRssi();
+                    if(device == null)
+                        return;
+
+                    // if (null == device.getName() || device.getName().startsWith("mto"))
+                    ///   return;
+                    if (null == device.getName())
+                        return;
+                    startNotificationToneAndVibrate(device, rssi);
+                    writeDatatoFile(device, rssi);
+                    if (scannedDevices.containsKey(device.getName())) {
+                        if (scannedDevices.get(device) < rssi)
+                            scannedDevices.put(device, rssi);
+                    } else {
+                        scannedDevices.put(device, rssi);
+                    }
+                    Log.d("sandeep", "device name and rssi: " + device.getName() + "  " + rssi);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            mLeDeviceListAdapter.addDevice(device);
+                            mLeDeviceListAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+            };
+
     }
 
     private boolean speedDetectionServiceRunning() {
@@ -338,8 +388,6 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                 new File(dir, children[i]).delete();
             }
         }
-
-
     }
 
     @Override
@@ -389,6 +437,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
 		intent.putExtra(ScanningActivity.EXTRAS_DEVICE_NAME, device.getName());
 		intent.putExtra(ScanningActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
 		if (mScanning) {
+
 			mBluetoothAdapter.stopLeScan(mLeScanCallback);
 			mScanning = false;
 		}
@@ -410,7 +459,10 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                 @Override
                 public void run() {
                     mScanning = false;
-                    mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                    if(mSdkVersion > Build.VERSION_CODES.KITKAT)
+                        StopScanForLatestAndroid();
+                    else
+                        mBluetoothAdapter.stopLeScan(mLeScanCallback);
                     invalidateOptionsMenu();
                     //openTheBestSignalDevice();
 
@@ -418,12 +470,28 @@ public class ScanningActivity extends ListActivity implements LocationListener {
             }, SCAN_PERIOD);
 
             mScanning = true;
+            if(mSdkVersion > Build.VERSION_CODES.KITKAT) {
+                StartScanForLatestAndroid();
+            }else
             mBluetoothAdapter.startLeScan(mLeScanCallback);
         } else {
             mScanning = false;
-            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+            if(mSdkVersion > Build.VERSION_CODES.KITKAT) {
+                StopScanForLatestAndroid();
+            }else
+                mBluetoothAdapter.stopLeScan(mLeScanCallback);
         }
         invalidateOptionsMenu();
+    }
+
+    @TargetApi(21)
+    private void StartScanForLatestAndroid() {
+        mScanner.startScan(mLatestScanCallback);
+    }
+
+    @TargetApi(21)
+    private void StopScanForLatestAndroid() {
+        mScanner.stopScan(mLatestScanCallback);
     }
 
     protected void openTheBestSignalDevice() {
@@ -439,7 +507,10 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         intent.putExtra(ScanningActivity.EXTRAS_DEVICE_NAME, maxEntry.getKey().getName());
         intent.putExtra(ScanningActivity.EXTRAS_DEVICE_ADDRESS, maxEntry.getKey().getAddress());
         if (mScanning) {
-            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+            if(mSdkVersion > Build.VERSION_CODES.KITKAT) {
+                StopScanForLatestAndroid();
+            }else
+             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             mScanning = false;
         }
         startActivity(intent);
