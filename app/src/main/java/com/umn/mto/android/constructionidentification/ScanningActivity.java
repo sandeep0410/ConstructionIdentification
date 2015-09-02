@@ -116,9 +116,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                 Toast.LENGTH_SHORT);
         mHandler = new Handler();
         mSdkVersion = Build.VERSION.SDK_INT;
-        if(mSdkVersion > Build.VERSION_CODES.KITKAT){
-            initializeLatestScanCallBack();
-        }
+
         mDistance = "-1";
         if (!speedDetectionServiceRunning()) {
             startService(new Intent(ScanningActivity.this, SpeedDetectionService.class));
@@ -135,14 +133,16 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
-       mScanner = mBluetoothAdapter.getBluetoothLeScanner();
+
         // Checks if Bluetooth is supported on the device.
         if (mBluetoothAdapter == null) {
             Toast.makeText(this, R.string.error_bluetooth_not_supported, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
-
+        if(mSdkVersion > Build.VERSION_CODES.KITKAT){
+            initializeLatestScanCallBack();
+        }
         LocationManager mLocationManager = (LocationManager) this
                 .getSystemService(Context.LOCATION_SERVICE);
 
@@ -163,6 +163,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
 
     @TargetApi(21)
     private void initializeLatestScanCallBack() {
+        mScanner = mBluetoothAdapter.getBluetoothLeScanner();
             mLatestScanCallback = new ScanCallback() {
                 @Override
                 public void onScanResult(int callbackType, ScanResult result) {
@@ -473,7 +474,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
             if(mSdkVersion > Build.VERSION_CODES.KITKAT) {
                 StartScanForLatestAndroid();
             }else
-            mBluetoothAdapter.startLeScan(mLeScanCallback);
+                mBluetoothAdapter.startLeScan(mLeScanCallback);
         } else {
             mScanning = false;
             if(mSdkVersion > Build.VERSION_CODES.KITKAT) {
@@ -486,11 +487,13 @@ public class ScanningActivity extends ListActivity implements LocationListener {
 
     @TargetApi(21)
     private void StartScanForLatestAndroid() {
+        if(null!=mScanner)
         mScanner.startScan(mLatestScanCallback);
     }
 
     @TargetApi(21)
     private void StopScanForLatestAndroid() {
+        if(null!=mScanner)
         mScanner.stopScan(mLatestScanCallback);
     }
 
