@@ -86,8 +86,11 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                         return;
                     if (null == device.getName())
                         return;
+                    if(rssi < (-1 * Settings.rssi_value))
+                        return;
                     startNotificationToneAndVibrate(device, rssi);
-                    writeDatatoFile(device, rssi);
+                    if(Settings.data_collection)
+                        writeDatatoFile(device, rssi);
                     if (scannedDevices.containsKey(device.getName())) {
                         if (scannedDevices.get(device) < rssi)
                             scannedDevices.put(device, rssi);
@@ -118,7 +121,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         mSdkVersion = Build.VERSION.SDK_INT;
 
         mDistance = "-1";
-        if (!speedDetectionServiceRunning()) {
+        if (!speedDetectionServiceRunning() && !Settings.enable_calls) {
             startService(new Intent(ScanningActivity.this, SpeedDetectionService.class));
         }
         // Use this check to determine whether BLE is supported on the device.  Then you can
@@ -172,13 +175,15 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                     int rssi = result.getRssi();
                     if(device == null)
                         return;
-
+                    if(rssi < (-1 * Settings.rssi_value))
+                        return;
                     // if (null == device.getName() || device.getName().startsWith("mto"))
                     ///   return;
                     if (null == device.getName())
                         return;
                     startNotificationToneAndVibrate(device, rssi);
-                    writeDatatoFile(device, rssi);
+                    if(Settings.data_collection)
+                        writeDatatoFile(device, rssi);
                     if (scannedDevices.containsKey(device.getName())) {
                         if (scannedDevices.get(device) < rssi)
                             scannedDevices.put(device, rssi);
@@ -199,7 +204,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
 
     }
 
-    private boolean speedDetectionServiceRunning() {
+    public boolean speedDetectionServiceRunning() {
 
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
@@ -286,7 +291,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
 
         }
 
-        MenuItem enable_calls = menu.findItem(R.id.enable_calls_driving);
+        /*MenuItem enable_calls = menu.findItem(R.id.enable_calls_driving);
         MenuItem disable_calls = menu.findItem(R.id.disable_calls_driving);
         if (speedDetectionServiceRunning()) {
             enable_calls.setVisible(true);
@@ -294,7 +299,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         } else {
             enable_calls.setVisible(false);
             disable_calls.setVisible(true);
-        }
+        }*/
 
         return true;
     }
@@ -313,12 +318,12 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                 scanLeDevice(false);
                 createDistanceDialog();
                 break;
-            case R.id.enable_calls_driving:
+           /* case R.id.enable_calls_driving:
                 stopService(new Intent(ScanningActivity.this, SpeedDetectionService.class));
                 break;
             case R.id.disable_calls_driving:
                 startService(new Intent(ScanningActivity.this, SpeedDetectionService.class));
-                break;
+                break;*/
             case R.id.settings:
                 createSettingsDialog();
                 break;

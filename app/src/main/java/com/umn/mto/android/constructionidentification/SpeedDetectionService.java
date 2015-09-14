@@ -89,8 +89,8 @@ public class SpeedDetectionService extends Service {
         @Override
         public void onLocationChanged(Location location) {
             // TODO Auto-generated method stub
-            //Toast.makeText(getApplicationContext(), "Current speed:" + location.getSpeed(),
-            //	Toast.LENGTH_SHORT).show();
+        /*    Toast.makeText(getApplicationContext(), "Current speed:" + location.getSpeed(),
+            	Toast.LENGTH_SHORT).show();*/
             Log.d("sandeep", "" + location.getSpeed());
             if (!location.hasSpeed() || location.getSpeed() == 0) {
                 Location locationNET = ((LocationManager) getSystemService(Context.LOCATION_SERVICE)).getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
