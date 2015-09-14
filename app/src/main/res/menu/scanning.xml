@@ -21,14 +21,14 @@
         android:id="@+id/enter_distance"
         android:showAsAction="never"
         android:title="@string/enter_distance" />
-    <item
+    <!--<item
         android:id="@+id/enable_calls_driving"
         android:showAsAction="never"
         android:title="@string/enable_calls" />
     <item
         android:id="@+id/disable_calls_driving"
         android:showAsAction="never"
-        android:title="@string/disable_calls" />
+        android:title="@string/disable_calls" />-->
     <item
         android:id="@+id/settings"
         android:showAsAction="never"
