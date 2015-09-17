@@ -8,8 +8,8 @@ import android.widget.Toast;
 
 import com.android.internal.telephony.ITelephony;
 import com.umn.mto.android.constructionidentification.MyApplication;
-import com.umn.mto.android.constructionidentification.ScanningActivity;
 import com.umn.mto.android.constructionidentification.SpeedDetectionService;
+import com.umn.mto.android.constructionidentification.settings.Settings;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
 public class PhoneCallStateListener extends PhoneStateListener {
 
     private Context mContext;
+    private static final int MAX_ALLOWED_SPEED = 5;
 
     public PhoneCallStateListener(Context context) {
         super();
@@ -30,13 +31,13 @@ public class PhoneCallStateListener extends PhoneStateListener {
             case TelephonyManager.CALL_STATE_IDLE:
                 break;
             case TelephonyManager.CALL_STATE_RINGING:
-                if (ScanningActivity.mScanning)
+                if (!Settings.enable_calls && SpeedDetectionService.mSpeed > MAX_ALLOWED_SPEED)
                     endCall(incomingNumber);
                 if (MyApplication.isActivityVisible())
                     Toast.makeText(mContext, "Incoming call from: " + incomingNumber, Toast.LENGTH_SHORT).show();
                 break;
             case TelephonyManager.CALL_STATE_OFFHOOK:
-                if (SpeedDetectionService.mSpeed > 5) {
+                if (!Settings.enable_calls && SpeedDetectionService.mSpeed > MAX_ALLOWED_SPEED) {
                     endCall(incomingNumber);
                     Toast.makeText(mContext, "Please reduce speed to make calls ", Toast.LENGTH_SHORT).show();
                 }
@@ -50,7 +51,7 @@ public class PhoneCallStateListener extends PhoneStateListener {
     private void endCall(String callingNumber) {
         try {
             /*if(!ScanningActivity.mScanning)
-				return;*/
+                return;*/
 
             TelephonyManager tm = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
             Class c = Class.forName(tm.getClass().getName());
