@@ -46,7 +46,7 @@ public class SettingDialogFragment extends DialogFragment {
         warning.setChecked(Settings.alarm);
         driving.setChecked(Settings.enable_calls);
         data.setChecked(Settings.data_collection);
-        driving.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+/*        driving.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked && ((ScanningActivity) context).speedDetectionServiceRunning())
@@ -55,7 +55,7 @@ public class SettingDialogFragment extends DialogFragment {
                     context.startService(new Intent(context, SpeedDetectionService.class));
                 Settings.enable_calls = driving.isChecked();
             }
-        });
+        });*/
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
