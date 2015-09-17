@@ -27,8 +27,9 @@
         android:theme="@android:style/Theme.DeviceDefault.Light">
         <activity
             android:name=".ScanningActivity"
+            android:configChanges="keyboardHidden|screenSize"
             android:label="@string/app_name"
-            android:configChanges="orientation|keyboardHidden|screenSize">
+            android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
