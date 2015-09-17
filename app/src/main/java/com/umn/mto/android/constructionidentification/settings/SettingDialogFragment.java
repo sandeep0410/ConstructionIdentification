@@ -40,12 +40,14 @@ public class SettingDialogFragment extends DialogFragment {
         final Switch warning = (Switch)view.findViewById(R.id.warning);
         final Switch driving = (Switch)view.findViewById(R.id.driving);
         final Switch data = (Switch)view.findViewById(R.id.data_collection);
+        final Switch display = (Switch)view.findViewById(R.id.display_warning);
         scanTime.setText(String.valueOf(Settings.scan_Time));
         rssi_value.setText(String.valueOf(Settings.rssi_value));
         vibration.setChecked(Settings.vibration);
         warning.setChecked(Settings.alarm);
         driving.setChecked(Settings.enable_calls);
         data.setChecked(Settings.data_collection);
+        display.setChecked(Settings.display_alert);
 /*        driving.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -74,6 +76,7 @@ public class SettingDialogFragment extends DialogFragment {
                 Settings.alarm = warning.isChecked();
                 Settings.enable_calls = driving.isChecked();
                 Settings.data_collection = data.isChecked();
+                Settings.display_alert = display.isChecked();
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
