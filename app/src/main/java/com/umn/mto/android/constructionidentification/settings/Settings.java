@@ -10,4 +10,5 @@ public class Settings {
     public static int scan_Time = 100;
     public static int rssi_value = 128;
     public static boolean enable_calls = false;
+    public static boolean display_alert = true;
 }

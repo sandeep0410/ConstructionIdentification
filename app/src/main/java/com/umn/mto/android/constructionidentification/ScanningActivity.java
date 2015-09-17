@@ -56,7 +56,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map.Entry;
 
 public class ScanningActivity extends ListActivity implements LocationListener {
@@ -169,15 +168,13 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         }
         createDistanceDialog();
         //createImageWarningDialog();
-        tts=new TextToSpeech(ScanningActivity.this, new TextToSpeech.OnInitListener() {
+        tts = new TextToSpeech(ScanningActivity.this, new TextToSpeech.OnInitListener() {
 
             @Override
             public void onInit(int status) {
 
             }
         });
-
-
 
 
     }
@@ -396,18 +393,21 @@ public class ScanningActivity extends ListActivity implements LocationListener {
     }
 
     private void createImageWarningDialogForOlderDevices(BluetoothDevice device, int rssi) {
-        ImageNotificationDialogFragment dialog = new ImageNotificationDialogFragment(this);
-        dialog.show(getFragmentManager(), "image");
-        String toSpeak = device.getName() + " Bluetooth Device found";
+        if (Settings.display_alert) {
+            ImageNotificationDialogFragment dialog = new ImageNotificationDialogFragment(this);
+            dialog.show(getFragmentManager(), "image");
+        }
+        String toSpeak = "Attention, approaching a traffic Intersection, look up!";
         tts.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
     }
 
     @TargetApi(21)
     private void createImageWarningDialog(BluetoothDevice device, int rssi) {
-        ImageNotificationDialogFragment dialog = new ImageNotificationDialogFragment(this);
-        dialog.show(getFragmentManager(), "image");
-
-        String toSpeak = device.getName() + " Bluetooth Device found";
+        if (Settings.display_alert) {
+            ImageNotificationDialogFragment dialog = new ImageNotificationDialogFragment(this);
+            dialog.show(getFragmentManager(), "image");
+        }
+        String toSpeak = "Attention, approaching a traffic Intersection, look up!";
         tts.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null, null);
     }
 
