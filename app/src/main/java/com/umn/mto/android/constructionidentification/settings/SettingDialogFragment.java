@@ -6,6 +6,7 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -77,6 +78,7 @@ public class SettingDialogFragment extends DialogFragment {
                 Settings.enable_calls = driving.isChecked();
                 Settings.data_collection = data.isChecked();
                 Settings.display_alert = display.isChecked();
+                saveValuesToPrefs();
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -87,6 +89,19 @@ public class SettingDialogFragment extends DialogFragment {
         });
 
         return builder.create();
+    }
+
+    private void saveValuesToPrefs() {
+        SharedPreferences.Editor editor = context.getSharedPreferences(
+                "com.umn.mto.android.constructionidentification", Context.MODE_PRIVATE).edit();
+        editor.putBoolean(Settings.ENABLE_CALLS, Settings.enable_calls);
+        editor.putBoolean(Settings.ALARM, Settings.alarm);
+        editor.putBoolean(Settings.DISPLAY_ALERT, Settings.display_alert);
+        editor.putBoolean(Settings.DATA_COLLECTION, Settings.data_collection);
+        editor.putBoolean(Settings.VIBRATION, Settings.vibration);
+        editor.putInt(Settings.SCAN_TIME, Settings.scan_Time);
+        editor.putInt(Settings.RSSI_VALUE, Settings.rssi_value);
+        editor.apply();
     }
 }
 
