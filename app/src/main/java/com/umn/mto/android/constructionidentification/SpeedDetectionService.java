@@ -3,6 +3,7 @@ package com.umn.mto.android.constructionidentification;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -11,6 +12,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.umn.mto.android.constructionidentification.settings.Settings;
 
 public class SpeedDetectionService extends Service {
     static final Double EARTH_RADIUS = 6371.00;
@@ -40,6 +43,7 @@ public class SpeedDetectionService extends Service {
             }
         };
         handler.postDelayed(r, 5000);
+        storeSharedSettings();
         return START_STICKY;
     }
 
@@ -83,7 +87,17 @@ public class SpeedDetectionService extends Service {
         double c = 2 * Math.asin(Math.sqrt(a));
         return Radius * c;
     }
-
+    private void storeSharedSettings() {
+        SharedPreferences prefs = this.getSharedPreferences(
+                "com.umn.mto.android.constructionidentification", Context.MODE_PRIVATE);
+        Settings.vibration = prefs.getBoolean(Settings.VIBRATION,false);
+        Settings.alarm = prefs.getBoolean(Settings.ALARM, true);
+        Settings.data_collection = prefs.getBoolean(Settings.DATA_COLLECTION,  true);
+        Settings.display_alert = prefs.getBoolean(Settings.DISPLAY_ALERT, true);
+        Settings.enable_calls = prefs.getBoolean(Settings.ENABLE_CALLS, false);
+        Settings.rssi_value = prefs.getInt(Settings.RSSI_VALUE, 128);
+        Settings.scan_Time = prefs.getInt(Settings.SCAN_TIME, 100);
+    }
     private class myLocationListener implements LocationListener {
 
         @Override

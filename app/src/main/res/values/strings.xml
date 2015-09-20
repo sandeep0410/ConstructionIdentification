@@ -25,8 +25,7 @@
     <string name="enter_distance">Enter Notes</string>
     <string name="distance_dialog_title">Observation Notes</string>
     <string name="distance_default_text">Test Data</string>
-    <string name="enable_calls">Enable Driving Calls</string>
-    <string name="disable_calls">Disable Driving Calls</string>
+    <string name="enable_calls">Enable incoming/outgoing calls</string>
     <string name="test">Test</string>
     <string name="rssi_label">RSSI Threshhold (-20 to -128)</string>
 

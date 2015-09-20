@@ -18,6 +18,7 @@ import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -45,6 +46,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.opencsv.CSVWriter;
+import com.umn.mto.android.constructionidentification.com.umn.mto.android.constructionidentification.dto.BluetoothDeviceObject;
 import com.umn.mto.android.constructionidentification.settings.ImageNotificationDialogFragment;
 import com.umn.mto.android.constructionidentification.settings.SettingDialogFragment;
 import com.umn.mto.android.constructionidentification.settings.Settings;
@@ -56,11 +58,17 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ScanningActivity extends ListActivity implements LocationListener {
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
+    public static final String DIR_NAME = "MTO_BLE";
+    public static final String TO_SPEAK =  "Attention, approaching a traffic Intersection, look up!";
     private static final int REQUEST_ENABLE_BT = 1;
     // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 100000;
@@ -79,6 +87,19 @@ public class ScanningActivity extends ListActivity implements LocationListener {
     private Toast mToast;
     private int mSdkVersion;
     TextToSpeech tts;
+    ScheduledExecutorService mExecutor;
+    private Map<String, BluetoothDeviceObject> currentScannedList = new HashMap<String, BluetoothDeviceObject>();
+    private Runnable mRunnable = new Runnable() {
+        @Override
+        public void run() {
+
+            Log.d("sandeep", "writing.. " + currentScannedList.size());
+            for (Map.Entry<String, BluetoothDeviceObject> bluetoothobject : currentScannedList.entrySet()) {
+                writeDatatoFile(bluetoothobject.getValue().device, bluetoothobject.getValue().rssi);
+            }
+        }
+    };
+
     // Device scan callback.
     private BluetoothAdapter.LeScanCallback mLeScanCallback =
             new BluetoothAdapter.LeScanCallback() {
@@ -93,8 +114,9 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                     if (rssi < (-1 * Settings.rssi_value))
                         return;
                     startNotificationToneAndVibrate(device, rssi);
-                    if (Settings.data_collection)
-                        writeDatatoFile(device, rssi);
+                    /*if (Settings.data_collection)
+                        writeDatatoFile(device, rssi);*/
+                    currentScannedList.put(device.getName(), new BluetoothDeviceObject(device, rssi));
                     if (scannedDevices.containsKey(device.getName())) {
                         if (scannedDevices.get(device) < rssi)
                             scannedDevices.put(device, rssi);
@@ -196,8 +218,9 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                     return;
 
                 startNotificationToneAndVibrate(device, rssi);
-                if (Settings.data_collection)
-                    writeDatatoFile(device, rssi);
+                currentScannedList.put(device.getName(), new BluetoothDeviceObject(device, rssi));
+                /*if (Settings.data_collection)
+                    writeDatatoFile(device, rssi);*/
                 if (scannedDevices.containsKey(device.getName())) {
                     if (scannedDevices.get(device) < rssi)
                         scannedDevices.put(device, rssi);
@@ -397,8 +420,8 @@ public class ScanningActivity extends ListActivity implements LocationListener {
             ImageNotificationDialogFragment dialog = new ImageNotificationDialogFragment(this);
             dialog.show(getFragmentManager(), "image");
         }
-        String toSpeak = "Attention, approaching a traffic Intersection, look up!";
-        tts.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+        if (!tts.isSpeaking())
+            tts.speak(TO_SPEAK, TextToSpeech.QUEUE_FLUSH, null);
     }
 
     @TargetApi(21)
@@ -407,8 +430,9 @@ public class ScanningActivity extends ListActivity implements LocationListener {
             ImageNotificationDialogFragment dialog = new ImageNotificationDialogFragment(this);
             dialog.show(getFragmentManager(), "image");
         }
-        String toSpeak = "Attention, approaching a traffic Intersection, look up!";
-        tts.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null, null);
+
+        if (!tts.isSpeaking())
+            tts.speak(TO_SPEAK, TextToSpeech.QUEUE_FLUSH, null, null);
     }
 
     private void deleteCSVfile() {
@@ -419,7 +443,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
 
     protected void deletePreviousData() {
 
-        File dir = new File(Environment.getExternalStorageDirectory() + "/BLE");
+        File dir = new File(Environment.getExternalStorageDirectory() + File.separator + DIR_NAME);
         Log.d("sandeep1", "" + dir);
         if (dir.isDirectory()) {
             String[] children = dir.list();
@@ -447,6 +471,19 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         setListAdapter(mLeDeviceListAdapter);
         //scanLeDevice(true);
         MyApplication.onResumeCalled();
+        storeSharedSettings();
+    }
+
+    private void storeSharedSettings() {
+        SharedPreferences prefs = this.getSharedPreferences(
+                "com.umn.mto.android.constructionidentification", Context.MODE_PRIVATE);
+        Settings.vibration = prefs.getBoolean(Settings.VIBRATION, false);
+        Settings.alarm = prefs.getBoolean(Settings.ALARM, true);
+        Settings.data_collection = prefs.getBoolean(Settings.DATA_COLLECTION, true);
+        Settings.display_alert = prefs.getBoolean(Settings.DISPLAY_ALERT, true);
+        Settings.enable_calls = prefs.getBoolean(Settings.ENABLE_CALLS, false);
+        Settings.rssi_value = prefs.getInt(Settings.RSSI_VALUE, 128);
+        Settings.scan_Time = prefs.getInt(Settings.SCAN_TIME, 100);
     }
 
     @Override
@@ -491,20 +528,14 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         if (enable) {
 
             scannedDevices.clear();
+            currentScannedList.clear();
             mLeDeviceListAdapter.clear();
             mLeDeviceListAdapter.notifyDataSetChanged();
             // Stops scanning after a pre-defined scan period.
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    mScanning = false;
-                    if (mSdkVersion > Build.VERSION_CODES.KITKAT)
-                        StopScanForLatestAndroid();
-                    else
-                        mBluetoothAdapter.stopLeScan(mLeScanCallback);
-                    invalidateOptionsMenu();
-                    //openTheBestSignalDevice();
-
+                    stopScanningforDevices();
                 }
             }, SCAN_PERIOD);
 
@@ -513,14 +544,23 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                 StartScanForLatestAndroid();
             } else
                 mBluetoothAdapter.startLeScan(mLeScanCallback);
+            if (Settings.data_collection)
+                startWritingService();
         } else {
-            mScanning = false;
-            if (mSdkVersion > Build.VERSION_CODES.KITKAT) {
-                StopScanForLatestAndroid();
-            } else
-                mBluetoothAdapter.stopLeScan(mLeScanCallback);
+            stopScanningforDevices();
         }
         invalidateOptionsMenu();
+    }
+
+    private void stopExecutorService() {
+        if (mExecutor != null)
+            mExecutor.shutdownNow();
+        currentScannedList.clear();
+    }
+
+    private void startWritingService() {
+        mExecutor = Executors.newScheduledThreadPool(1);
+        mExecutor.scheduleAtFixedRate(mRunnable, 1, 1, TimeUnit.SECONDS);
     }
 
     @TargetApi(21)
@@ -548,11 +588,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         intent.putExtra(ScanningActivity.EXTRAS_DEVICE_NAME, maxEntry.getKey().getName());
         intent.putExtra(ScanningActivity.EXTRAS_DEVICE_ADDRESS, maxEntry.getKey().getAddress());
         if (mScanning) {
-            if (mSdkVersion > Build.VERSION_CODES.KITKAT) {
-                StopScanForLatestAndroid();
-            } else
-                mBluetoothAdapter.stopLeScan(mLeScanCallback);
-            mScanning = false;
+            stopScanningforDevices();
         }
         startActivity(intent);
 
@@ -597,8 +633,8 @@ public class ScanningActivity extends ListActivity implements LocationListener {
     }
 
     protected void writeDatatoFile(BluetoothDevice device, int rssi) {
-        File f = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MTO_BLE/");
-        File temp = new File(f.getAbsolutePath() + "/data.csv");
+        File f = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + DIR_NAME + File.separator);
+        File temp = new File(f.getAbsolutePath() + File.separator + "data.csv");
         Log.d("sandeep1", f.getAbsolutePath() + " " + temp.getAbsolutePath());
         Log.d("sandeep1", "" + (f.exists()) + " " + temp.exists());
         CSVWriter writer = null;
@@ -642,6 +678,18 @@ public class ScanningActivity extends ListActivity implements LocationListener {
 
 
         Log.d("sandeep1", "" + f.exists());
+    }
+
+    /*Stop Scanning for Bluetooth Devices*/
+    public void stopScanningforDevices() {
+        mScanning = false;
+        if (mSdkVersion > Build.VERSION_CODES.KITKAT)
+            StopScanForLatestAndroid();
+        else
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+        invalidateOptionsMenu();
+        //openTheBestSignalDevice();
+        stopExecutorService();
     }
 
     /* Checks if external storage is available to at least read */
