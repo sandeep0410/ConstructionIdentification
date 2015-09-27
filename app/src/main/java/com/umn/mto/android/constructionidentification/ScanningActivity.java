@@ -14,7 +14,9 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -88,7 +90,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
     private int mSdkVersion;
     TextToSpeech tts;
     ScheduledExecutorService mExecutor;
-    private Map<String, BluetoothDeviceObject> currentScannedList = new HashMap<String, BluetoothDeviceObject>();
+    volatile private Map<String, BluetoothDeviceObject> currentScannedList = new HashMap<String, BluetoothDeviceObject>();
     private Runnable mRunnable = new Runnable() {
         @Override
         public void run() {
@@ -565,14 +567,20 @@ public class ScanningActivity extends ListActivity implements LocationListener {
 
     @TargetApi(21)
     private void StartScanForLatestAndroid() {
-        if (null != mScanner)
-            mScanner.startScan(mLatestScanCallback);
+        if (null != mScanner) {
+            ScanSettings settings = new ScanSettings.Builder()
+                    .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                    .build();
+            List<ScanFilter> filters = new ArrayList<ScanFilter>();
+            mScanner.startScan(filters, settings, mLatestScanCallback);
+        }
     }
 
     @TargetApi(21)
     private void StopScanForLatestAndroid() {
-        if (null != mScanner)
+        if (null != mScanner) {
             mScanner.stopScan(mLatestScanCallback);
+        }
     }
 
     protected void openTheBestSignalDevice() {
