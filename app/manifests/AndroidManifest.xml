@@ -20,6 +20,7 @@
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -36,12 +37,25 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".warning.WarningActivity"
+            android:launchMode="singleInstance"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/Theme.Transparent" />
+
         <service android:name="com.umn.mto.android.constructionidentification.SpeedDetectionService"></service>
+
         <receiver android:name="com.umn.mto.android.constructionidentification.receiver.PhoneStateReceiver">
             <intent-filter android:priority="-1">
                 <action android:name="android.intent.action.PHONE_STATE" />
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".warning.WarningReceiver">
+            <intent-filter android:priority="-1">
+                <action android:name="com.umn.mto.android.warning.RAISE" />
+                <action android:name="com.umn.mto.android.warning.STOP" />
             </intent-filter>
         </receiver>
     </application>

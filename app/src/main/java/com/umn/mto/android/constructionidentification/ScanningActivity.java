@@ -67,6 +67,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class ScanningActivity extends ListActivity implements LocationListener {
+    static ScanningActivity _instance;
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
     public static final String DIR_NAME = "MTO_BLE";
@@ -455,9 +456,11 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         }
     }
 
+
     @Override
     protected void onResume() {
         super.onResume();
+        _instance = this;
         Log.d("sandeep", isExternalStorageReadable() + " " + isExternalStorageWritable());
         // Ensures Bluetooth is enabled on the device.  If Bluetooth is not currently enabled,
         // fire an intent to display a dialog asking the user to grant permission to enable it.
@@ -486,6 +489,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         Settings.enable_calls = prefs.getBoolean(Settings.ENABLE_CALLS, false);
         Settings.rssi_value = prefs.getInt(Settings.RSSI_VALUE, 128);
         Settings.scan_Time = prefs.getInt(Settings.SCAN_TIME, 100);
+        Settings.overspeed_block = prefs.getBoolean(Settings.OVERSPEED_BLOCK, false);
     }
 
     @Override
@@ -501,10 +505,15 @@ public class ScanningActivity extends ListActivity implements LocationListener {
     @Override
     protected void onPause() {
         super.onPause();
+        _instance=null;
         scanLeDevice(false);
         mLeDeviceListAdapter.clear();
         mScanning = false;
         MyApplication.onPauseCalled();
+    }
+
+    public static ScanningActivity getInstance(){
+        return _instance;
     }
 
     @Override

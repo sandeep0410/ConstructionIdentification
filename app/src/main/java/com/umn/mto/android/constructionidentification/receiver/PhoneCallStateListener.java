@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
 public class PhoneCallStateListener extends PhoneStateListener {
 
     private Context mContext;
-    private static final int MAX_ALLOWED_SPEED = 5;
+    public static final double MAX_ALLOWED_SPEED = 5;
 
     public PhoneCallStateListener(Context context) {
         super();

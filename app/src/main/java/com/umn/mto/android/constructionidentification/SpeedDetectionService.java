@@ -13,7 +13,10 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.umn.mto.android.constructionidentification.receiver.PhoneCallStateListener;
 import com.umn.mto.android.constructionidentification.settings.Settings;
+import com.umn.mto.android.constructionidentification.warning.WarningActivity;
+import com.umn.mto.android.constructionidentification.warning.WarningReceiver;
 
 public class SpeedDetectionService extends Service {
     static final Double EARTH_RADIUS = 6371.00;
@@ -97,6 +100,7 @@ public class SpeedDetectionService extends Service {
         Settings.enable_calls = prefs.getBoolean(Settings.ENABLE_CALLS, false);
         Settings.rssi_value = prefs.getInt(Settings.RSSI_VALUE, 128);
         Settings.scan_Time = prefs.getInt(Settings.SCAN_TIME, 100);
+        Settings.overspeed_block = prefs.getBoolean(Settings.OVERSPEED_BLOCK, false);
     }
     private class myLocationListener implements LocationListener {
 
@@ -112,6 +116,20 @@ public class SpeedDetectionService extends Service {
                     mSpeed = locationNET.getSpeed();
             } else
                 mSpeed = location.getSpeed();
+            if(mSpeed > PhoneCallStateListener.MAX_ALLOWED_SPEED && Settings.overspeed_block){
+                if(WarningActivity.getInstance() == null && ScanningActivity.getInstance() == null){
+                    Intent i = new Intent();
+                    i.setAction(WarningReceiver.RAISE_WARNING);
+                    sendBroadcast(i);
+                }
+            }else{
+                if(WarningActivity.getInstance()!=null){
+                    Intent i = new Intent();
+                    i.setAction(WarningReceiver.STOP_WARNING);
+                    sendBroadcast(i);
+                }
+
+            }
 
         }
 

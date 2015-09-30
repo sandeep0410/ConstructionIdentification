@@ -12,6 +12,7 @@ public class Settings {
     public static final String RSSI_VALUE = "Rssi Value";
     public static final String ENABLE_CALLS = "Enable Calls";
     public static final String DISPLAY_ALERT = "Display Alert";
+    public static final String OVERSPEED_BLOCK = "Overspeed Block";
 
     public static boolean vibration = false;
     public static boolean alarm = true;
@@ -20,4 +21,5 @@ public class Settings {
     public static int rssi_value = 128;
     public static boolean enable_calls = false;
     public static boolean display_alert = true;
+    public static boolean overspeed_block = false;
 }
