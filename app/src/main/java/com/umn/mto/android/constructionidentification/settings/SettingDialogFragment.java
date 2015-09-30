@@ -35,6 +35,7 @@ public class SettingDialogFragment extends DialogFragment {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
         View view = inflater.inflate(R.layout.settings_layout, null);
         builder.setView(view);
+
         final EditText scanTime = (EditText)view.findViewById(R.id.scanning_time);
         final EditText rssi_value = (EditText)view.findViewById(R.id.rssi_value);
         final Switch vibration = (Switch)view.findViewById(R.id.vibration);
@@ -42,6 +43,8 @@ public class SettingDialogFragment extends DialogFragment {
         final Switch driving = (Switch)view.findViewById(R.id.driving);
         final Switch data = (Switch)view.findViewById(R.id.data_collection);
         final Switch display = (Switch)view.findViewById(R.id.display_warning);
+        final Switch block_overspeed = (Switch)view.findViewById(R.id.overspeed_block);
+
         scanTime.setText(String.valueOf(Settings.scan_Time));
         rssi_value.setText(String.valueOf(Settings.rssi_value));
         vibration.setChecked(Settings.vibration);
@@ -49,16 +52,8 @@ public class SettingDialogFragment extends DialogFragment {
         driving.setChecked(Settings.enable_calls);
         data.setChecked(Settings.data_collection);
         display.setChecked(Settings.display_alert);
-/*        driving.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked && ((ScanningActivity) context).speedDetectionServiceRunning())
-                    context.stopService(new Intent(context, SpeedDetectionService.class));
-                else if (!((ScanningActivity) context).speedDetectionServiceRunning())
-                    context.startService(new Intent(context, SpeedDetectionService.class));
-                Settings.enable_calls = driving.isChecked();
-            }
-        });*/
+        block_overspeed.setChecked(Settings.overspeed_block);
+
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -78,6 +73,7 @@ public class SettingDialogFragment extends DialogFragment {
                 Settings.enable_calls = driving.isChecked();
                 Settings.data_collection = data.isChecked();
                 Settings.display_alert = display.isChecked();
+                Settings.overspeed_block = block_overspeed.isChecked();
                 saveValuesToPrefs();
             }
         });
@@ -101,6 +97,7 @@ public class SettingDialogFragment extends DialogFragment {
         editor.putBoolean(Settings.VIBRATION, Settings.vibration);
         editor.putInt(Settings.SCAN_TIME, Settings.scan_Time);
         editor.putInt(Settings.RSSI_VALUE, Settings.rssi_value);
+        editor.putBoolean(Settings.OVERSPEED_BLOCK, Settings.overspeed_block);
         editor.apply();
     }
 }
