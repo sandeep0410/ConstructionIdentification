@@ -49,6 +49,8 @@ import android.widget.Toast;
 
 import com.opencsv.CSVWriter;
 import com.umn.mto.android.constructionidentification.com.umn.mto.android.constructionidentification.dto.BluetoothDeviceObject;
+import com.umn.mto.android.constructionidentification.com.umn.mto.android.constructionidentification.dto.WorkZonePoint;
+import com.umn.mto.android.constructionidentification.db.DBSQLiteHelper;
 import com.umn.mto.android.constructionidentification.settings.ImageNotificationDialogFragment;
 import com.umn.mto.android.constructionidentification.settings.SettingDialogFragment;
 import com.umn.mto.android.constructionidentification.settings.Settings;
@@ -149,7 +151,20 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                 Toast.LENGTH_SHORT);
         mHandler = new Handler();
         mSdkVersion = Build.VERSION.SDK_INT;
+        //###################################################################################
+    DBSQLiteHelper db = new DBSQLiteHelper(this);
+        //WorkZonePoint one = new WorkZonePoint(1,2,3,4);
+        //db.addWorkZoneData(one);
 
+        List<WorkZonePoint> arr  = db.getAllWorkZoneData();
+        for(WorkZonePoint w: arr){
+            Log.d("sandeep", "new data");
+            Log.d("sandeep", ""+w.getId());
+            Log.d("sandeep",""+w.getPointId());
+            Log.d("sandeep",""+w.getLat());
+            Log.d("sandeep",""+w.getLon());
+        }
+        //###################################################################################
         mDistance = "-1";
         if (!speedDetectionServiceRunning() && !Settings.enable_calls) {
             startService(new Intent(ScanningActivity.this, SpeedDetectionService.class));
