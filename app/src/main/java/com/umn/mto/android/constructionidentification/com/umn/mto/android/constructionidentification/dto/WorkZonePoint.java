@@ -47,4 +47,7 @@ public class WorkZonePoint {
     public void setLon(double lon) {
         this.lon = lon;
     }
+    public String toString(){
+        return "id: " +id +" pointID: " +pointId +" lat: " +lat +" lon: " +lon;
+    }
 }

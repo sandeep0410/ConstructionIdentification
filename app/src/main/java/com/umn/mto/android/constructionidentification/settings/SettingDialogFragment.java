@@ -25,8 +25,8 @@ import com.umn.mto.android.constructionidentification.SpeedDetectionService;
 public class SettingDialogFragment extends DialogFragment {
     Context context;
 
-    public SettingDialogFragment(Context context){
-        this.context = context;
+    public SettingDialogFragment(){
+        this.context = ScanningActivity.getInstance();
     }
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {

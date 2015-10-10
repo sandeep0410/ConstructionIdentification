@@ -5,7 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
+import com.umn.mto.android.constructionidentification.com.umn.mto.android.constructionidentification.dto.BLETag;
 import com.umn.mto.android.constructionidentification.com.umn.mto.android.constructionidentification.dto.WorkZonePoint;
 
 import java.util.ArrayList;
@@ -83,6 +85,23 @@ public class DBSQLiteHelper extends SQLiteOpenHelper {
 
     }
 
+
+    public void addBLETagData(BLETag one) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(DBUtils.BLETAG_WZ_ID, one.getWorkzoneID());
+        values.put(DBUtils.BLETAG_BLE_MAC, one.getBleMac());
+        values.put(DBUtils.BLETAG_LATITUDE, one.getLat());
+        values.put(DBUtils.BLETAG_LONGITUDE, one.getLon());
+        values.put(DBUtils.BLETAG_SPEED_LIMIT, one.getSpeedLimit());
+        values.put(DBUtils.BLETAG_MESSAGE, one.getMessage());
+        values.put(DBUtils.BLETAG_FLAG, one.getFlag());
+        values.put(DBUtils.BLETAG_FILEPATH,one.getFileName());
+        db.insert(DBUtils.BLETAG_TABLE, null, values);
+        db.close();
+
+    }
+
     public List<WorkZonePoint> getAllWorkZoneData(){
         List<WorkZonePoint> wzPoints = new ArrayList<WorkZonePoint>();
         String selectQuery = "SELECT *FROM " +DBUtils.WZ_TABLE;
@@ -93,11 +112,41 @@ public class DBSQLiteHelper extends SQLiteOpenHelper {
                 WorkZonePoint wzp = new WorkZonePoint(-1,-1,-1,-1);
                 wzp.setId(Integer.parseInt(cursor.getString(1)));
                 wzp.setPointId(Integer.parseInt(cursor.getString(2)));
-                wzp.setLat(Integer.parseInt(cursor.getString(3)));
-                wzp.setLon(Integer.parseInt(cursor.getString(4)));
+                wzp.setLat(Double.parseDouble(cursor.getString(3)));
+                wzp.setLon(Double.parseDouble(cursor.getString(4)));
                 wzPoints.add(wzp);
             }while(cursor.moveToNext());
         }
+        db.close();
         return wzPoints;
+    }
+
+    public List<BLETag> getAllBLEData(){
+        List<BLETag> bleTags = new ArrayList<BLETag>();
+        String selectQuery = "SELECT *FROM " +DBUtils.BLETAG_TABLE;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        if(cursor.moveToFirst()){
+            do{
+                BLETag bt = new BLETag(-1,"",-1,-1,-1,"",-1,"");
+                bt.setWorkzoneID(Integer.parseInt(cursor.getString(1)));
+                bt.setBleMac(cursor.getString(2));
+                bt.setLat(Double.parseDouble(cursor.getString(3)));
+                bt.setLon(Double.parseDouble(cursor.getString(4)));
+                bt.setSpeedLimit(Integer.parseInt(cursor.getString(5)));
+                bt.setMessage(cursor.getString(6));
+                bt.setFlag(Integer.parseInt(cursor.getString(7)));
+                bt.setFileName(cursor.getString(8));
+                bleTags.add(bt);
+            }while(cursor.moveToNext());
+        }
+        return bleTags;
+    }
+
+    public void deleteAll(String table)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("delete from "+ table);
+        db.close();
     }
 }

@@ -151,23 +151,11 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                 Toast.LENGTH_SHORT);
         mHandler = new Handler();
         mSdkVersion = Build.VERSION.SDK_INT;
-        //###################################################################################
-    DBSQLiteHelper db = new DBSQLiteHelper(this);
-        //WorkZonePoint one = new WorkZonePoint(1,2,3,4);
-        //db.addWorkZoneData(one);
-
-        List<WorkZonePoint> arr  = db.getAllWorkZoneData();
-        for(WorkZonePoint w: arr){
-            Log.d("sandeep", "new data");
-            Log.d("sandeep", ""+w.getId());
-            Log.d("sandeep",""+w.getPointId());
-            Log.d("sandeep",""+w.getLat());
-            Log.d("sandeep",""+w.getLon());
-        }
-        //###################################################################################
         mDistance = "-1";
-        if (!speedDetectionServiceRunning() && !Settings.enable_calls) {
-            startService(new Intent(ScanningActivity.this, SpeedDetectionService.class));
+        if (!speedDetectionServiceRunning()) {
+            Intent i = new Intent(ScanningActivity.this, SpeedDetectionService.class);
+            i.setAction(SpeedDetectionService.NotificationConstants.START_SPEED_DETECTION_SERVICE);
+            startService(i);
         }
         // Use this check to determine whether BLE is supported on the device.  Then you can
         // selectively disable BLE-related features.
@@ -317,8 +305,8 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         // TODO Auto-generated method stub
         mLatitude = location.getLatitude();
         mLongitude = location.getLongitude();
-        mToast.setText("Current speed:" + location.getSpeed());
-        mToast.show();
+       /* mToast.setText("Current speed:" + location.getSpeed());
+        mToast.show();*/
         Log.d("sandeep", "" + location.getSpeed());
         if (!location.hasSpeed() || location.getSpeed() == 0) {
             Location locationNET = ((LocationManager) this.getSystemService(Context.LOCATION_SERVICE)).getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
@@ -346,15 +334,6 @@ public class ScanningActivity extends ListActivity implements LocationListener {
 
         }
 
-        /*MenuItem enable_calls = menu.findItem(R.id.enable_calls_driving);
-        MenuItem disable_calls = menu.findItem(R.id.disable_calls_driving);
-        if (speedDetectionServiceRunning()) {
-            enable_calls.setVisible(true);
-            disable_calls.setVisible(false);
-        } else {
-            enable_calls.setVisible(false);
-            disable_calls.setVisible(true);
-        }*/
 
         return true;
     }
@@ -429,13 +408,13 @@ public class ScanningActivity extends ListActivity implements LocationListener {
     }
 
     private void createSettingsDialog() {
-        SettingDialogFragment dialog = new SettingDialogFragment(this);
+        SettingDialogFragment dialog = new SettingDialogFragment();
         dialog.show(getFragmentManager(), "settings");
     }
 
     private void createImageWarningDialogForOlderDevices(BluetoothDevice device, int rssi) {
         if (Settings.display_alert) {
-            ImageNotificationDialogFragment dialog = new ImageNotificationDialogFragment(this);
+            ImageNotificationDialogFragment dialog = new ImageNotificationDialogFragment();
             dialog.show(getFragmentManager(), "image");
         }
         if (!tts.isSpeaking())
@@ -445,7 +424,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
     @TargetApi(21)
     private void createImageWarningDialog(BluetoothDevice device, int rssi) {
         if (Settings.display_alert) {
-            ImageNotificationDialogFragment dialog = new ImageNotificationDialogFragment(this);
+            ImageNotificationDialogFragment dialog = new ImageNotificationDialogFragment();
             dialog.show(getFragmentManager(), "image");
         }
 
@@ -459,7 +438,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
 
     }
 
-    protected void deletePreviousData() {
+    protected static void deletePreviousData() {
 
         File dir = new File(Environment.getExternalStorageDirectory() + File.separator + DIR_NAME);
         Log.d("sandeep1", "" + dir);
@@ -533,18 +512,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-        /*final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
-        if (device == null) return;
-		final Intent intent = new Intent(this, ScanningActivity.class);
-		intent.putExtra(ScanningActivity.EXTRAS_DEVICE_NAME, device.getName());
-		intent.putExtra(ScanningActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
-		if (mScanning) {
 
-			mBluetoothAdapter.stopLeScan(mLeScanCallback);
-			mScanning = false;
-		}
-		scannedDevices.clear();
-		startActivity(intent);*/
 
         Toast.makeText(getApplicationContext(), "CLicking of Item disabled", Toast.LENGTH_SHORT).show();
     }
@@ -698,7 +666,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                     address,
                     Integer.toString(rssi),
                     mDistance,
-                    "" + mSpeed,
+                    "" + SpeedDetectionService.mSpeed,
                     "" + mLatitude,
                     "" + mLongitude
             };
@@ -750,7 +718,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         TextView deviceAddress;
     }
 
-    class DeleteDialogFragment extends DialogFragment {
+    public static class DeleteDialogFragment extends DialogFragment {
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {

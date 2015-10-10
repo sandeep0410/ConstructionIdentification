@@ -87,4 +87,10 @@ public class BLETag {
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
+    public String toString() {
+        return "workzoneID: " + workzoneID + " bleMac: " + bleMac + " lat: "
+                + lat + " lon: " + lon + " speedLimit: " + speedLimit
+                + " message: " + message + " flag: " + flag + " fileName: "
+                + fileName;
+    }
 }
