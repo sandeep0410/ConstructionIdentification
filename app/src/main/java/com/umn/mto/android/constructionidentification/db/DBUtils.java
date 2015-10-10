@@ -4,13 +4,13 @@ package com.umn.mto.android.constructionidentification.db;
  * Created by Sandeep on 10/3/2015.
  */
 public class DBUtils {
-    public static final String WZ_TABLE = "WorkZone";
+    public static final String WZ_TABLE = "geofences";
     public static final String WZ_ID = "WorkZone_ID";
     public static final String WZ_POINT_ID = "Point_ID";
     public static final String WZ_LATITUDE = "Latitude";
     public static final String WZ_LONGITUDE = "Longitude";
 
-    public static final String BLETAG_TABLE = "BLE_Tag_Table";
+    public static final String BLETAG_TABLE = "ble_tags";
     public static final String BLETAG_WZ_ID = "BLE_WorkZone_ID";
     public static final String BLETAG_BLE_MAC = "BLE_MAC_ID";
     public static final String BLETAG_LATITUDE = "BLE_Latitude";

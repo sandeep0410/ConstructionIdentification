@@ -15,6 +15,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if ("android.intent.action.BOOT_COMPLETED".equals(intent.getAction())) {
             Intent serviceLauncher = new Intent(context, SpeedDetectionService.class);
+            serviceLauncher.setAction(SpeedDetectionService.NotificationConstants.START_SPEED_DETECTION_SERVICE);
             context.startService(serviceLauncher);
             Log.v("TEST", "Service loaded at start");
         } else {
