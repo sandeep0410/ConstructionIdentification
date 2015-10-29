@@ -34,7 +34,7 @@ public class DbDownloader extends Thread {
             url = new URL("http://128.101.111.92:8080/ConstructionServer/constructionserver");
             this.table = table;
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 

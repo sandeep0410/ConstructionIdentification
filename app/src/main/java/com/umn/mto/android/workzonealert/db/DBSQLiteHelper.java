@@ -140,6 +140,7 @@ public class DBSQLiteHelper extends SQLiteOpenHelper {
                 bleTags.add(bt);
             } while (cursor.moveToNext());
         }
+        db.close();
         return bleTags;
     }
 
@@ -170,6 +171,7 @@ public class DBSQLiteHelper extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         Log.d("sandeep", "printing after query: " + bt);
+        db.close();
         return bt;
     }
 }

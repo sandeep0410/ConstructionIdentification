@@ -212,6 +212,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
     private void createImageMap() {
         imageIDs.put("trafficwarning.jpg", R.drawable.trafficwarning);
         imageIDs.put("workzone.jpg", R.drawable.workzone);
+        imageIDs.put("image1.jpg",R.drawable.trafficwarning);
     }
 
     @TargetApi(21)
@@ -463,8 +464,12 @@ public class ScanningActivity extends ListActivity implements LocationListener {
             String imageID = tag.getFileName();
             if (tag.getMessage() != null)
                 message = tag.getMessage();
-            if (imageID != null)
-                drawableId = imageIDs.get(imageID);
+            if (imageID != null) {
+                if (imageIDs.containsKey(imageID))
+                    drawableId = imageIDs.get(imageID);
+                else
+                    drawableId = R.drawable.trafficwarning;
+            }
         }
         if (Settings.display_alert) {
             ImageNotificationDialogFragment dialog = new ImageNotificationDialogFragment();

@@ -20,6 +20,7 @@
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
 
     <application
@@ -60,7 +61,9 @@
             </intent-filter>
         </receiver>
         <receiver android:name=".receiver.AlarmReceiver">
-
+            <intent-filter android:priority="-1">
+                <action android:name="com.umn.mto.android.DOWNLOAD.START" />
+            </intent-filter>
         </receiver>
     </application>
 
