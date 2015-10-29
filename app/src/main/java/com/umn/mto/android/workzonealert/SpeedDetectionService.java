@@ -38,6 +38,9 @@ public class SpeedDetectionService extends Service {
     private boolean gps_enabled = false;
     private boolean network_enabled = false;
     private Handler handler = new Handler();
+    SharedPreferences mPrefs;
+    double updateLat = -1;
+    double updateLon = -1;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -46,12 +49,12 @@ public class SpeedDetectionService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        startDataBaseAlarm();
+
 
         Toast.makeText(getBaseContext(), "Service Started", Toast.LENGTH_SHORT).show();
-        SharedPreferences prefs = this.getSharedPreferences(
+        mPrefs = this.getSharedPreferences(
                 "com.umn.mto.android.workzonealert", Context.MODE_PRIVATE);
-        mSpeed = prefs.getFloat("Speed", mSpeed);
+        mSpeed = mPrefs.getFloat("Speed", mSpeed);
         startForeground(1, getNotification());
 
         final Runnable r = new Runnable() {
@@ -62,6 +65,7 @@ public class SpeedDetectionService extends Service {
         };
         handler.postDelayed(r, 3000);
         storeSharedSettings();
+        startDataBaseAlarm();
         return START_STICKY;
     }
 
@@ -69,8 +73,13 @@ public class SpeedDetectionService extends Service {
         Intent alarmIntent = new Intent(this, AlarmReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        long interval = 30*60*1000;
+        long interval = 30 * 60 * 1000;
         manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
+        if (mPrefs != null)
+            mPrefs = this.getSharedPreferences(
+                    "com.umn.mto.android.workzonealert", Context.MODE_PRIVATE);
+        updateLat = mPrefs.getFloat("DatabaseUpdateLatitude", -1);
+        updateLon = mPrefs.getFloat("DatabaseUpdateLongitude", -1);
     }
 
     @Override
@@ -131,13 +140,13 @@ public class SpeedDetectionService extends Service {
             if (!location.hasSpeed() || location.getSpeed() == 0) {
                 Location locationNET = ((LocationManager) getSystemService(Context.LOCATION_SERVICE)).getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                 if (null != locationNET) {
-                    if(locationNET.getSpeed()!=mSpeed) {
+                    if (locationNET.getSpeed() != mSpeed) {
                         mSpeed = locationNET.getSpeed();
                         updateNotification();
                     }
                 }
             } else {
-                if(location.getSpeed()!=mSpeed) {
+                if (location.getSpeed() != mSpeed) {
                     mSpeed = location.getSpeed();
                     updateNotification();
                 }
@@ -157,6 +166,10 @@ public class SpeedDetectionService extends Service {
 
             }
 
+            if (location != null) {
+                Log.d("sandeep","calling update function");
+                updateDBifRequired(location);
+            }
         }
 
         @Override
@@ -169,6 +182,33 @@ public class SpeedDetectionService extends Service {
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
+        }
+    }
+
+    private void updateDBifRequired(Location loc) {
+        if (updateLat < 0)
+            sendUpdateDBBroadCast(loc);
+        else {
+            Location savedLoc = new Location("Old Location");
+            savedLoc.setLongitude(updateLon);
+            savedLoc.setLatitude(updateLat);
+            if (loc.distanceTo(savedLoc) > 50 * 1609)
+                sendUpdateDBBroadCast(loc);
+        }
+    }
+
+    private void sendUpdateDBBroadCast(Location loc) {
+        if (Util.isOnline(this)) {
+            Intent i = new Intent();
+            i.setAction("com.umn.mto.android.DOWNLOAD.START");
+            sendBroadcast(i);
+            SharedPreferences.Editor editor = this.getSharedPreferences(
+                    "com.umn.mto.android.workzonealert", Context.MODE_PRIVATE).edit();
+            editor.putFloat("DatabaseUpdateLatitude", (float) loc.getLatitude());
+            editor.putFloat("DatabaseUpdateLongitude", (float) loc.getLongitude());
+            editor.apply();
+            updateLat = loc.getLatitude();
+            updateLon = loc.getLongitude();
         }
     }
 
