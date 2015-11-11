@@ -73,7 +73,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
     public static final String DIR_NAME = "MTO_BLE";
-    public static final String TO_SPEAK = "Attention, approaching a traffic Intersection, look up!";
+    public static final String TO_SPEAK = "Data Not Found!";
     private static final int REQUEST_ENABLE_BT = 1;
     // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 100000;
@@ -421,10 +421,10 @@ public class ScanningActivity extends ListActivity implements LocationListener {
     }
 
     private void createImageWarningDialogForOlderDevices(BluetoothDevice device, int rssi) {
-        if (!Settings.display_alert && tts.isSpeaking())
+        if (!Settings.display_alert || tts.isSpeaking())
             return;
         String message = TO_SPEAK;
-        int drawableId = R.drawable.traffic_warning;
+        int drawableId = Integer.MIN_VALUE;
         BLETag tag = queryDataBase(device);
         if (tag != null) {
             Log.d("sandeep", "tag from db: " + tag.toString());
@@ -434,7 +434,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
             if (imageID != null)
                 drawableId = imageIDs.get(imageID);
         }
-        if (Settings.display_alert) {
+        if (Settings.display_alert && drawableId>Integer.MIN_VALUE) {
             ImageNotificationDialogFragment dialog = new ImageNotificationDialogFragment();
             Bundle args = new Bundle();
             args.putInt("drawable", drawableId);
@@ -454,10 +454,10 @@ public class ScanningActivity extends ListActivity implements LocationListener {
 
     @TargetApi(21)
     private void createImageWarningDialog(BluetoothDevice device, int rssi) {
-        if (!Settings.display_alert && tts.isSpeaking())
+        if (!Settings.display_alert || tts.isSpeaking())
             return;
         String message = TO_SPEAK;
-        int drawableId = R.drawable.traffic_warning;
+        int drawableId = Integer.MIN_VALUE;
         BLETag tag = queryDataBase(device);
         if (tag != null) {
             Log.d("sandeep", "tag from db: " + tag.toString());
@@ -471,7 +471,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                     drawableId = R.drawable.trafficwarning;
             }
         }
-        if (Settings.display_alert) {
+        if (Settings.display_alert && drawableId>Integer.MIN_VALUE) {
             ImageNotificationDialogFragment dialog = new ImageNotificationDialogFragment();
             Bundle args = new Bundle();
             args.putInt("drawable", drawableId);
