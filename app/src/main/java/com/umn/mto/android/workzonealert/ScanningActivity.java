@@ -34,7 +34,6 @@ import android.os.Handler;
 import android.os.Vibrator;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -101,7 +100,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         @Override
         public void run() {
 
-            Log.d("sandeep", "writing.. " + currentScannedList.size());
+            LogUtils.log("writing.. " + currentScannedList.size());
             for (Map.Entry<String, BluetoothDeviceObject> bluetoothobject : currentScannedList.entrySet()) {
                 writeDatatoFile(bluetoothobject.getValue().device, bluetoothobject.getValue().rssi);
             }
@@ -114,7 +113,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
 
                 @Override
                 public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-                    Log.d("sandeep", "new Device: " + device.getName());
+                    LogUtils.log("new Device: " + device.getName());
                     if (null == device.getName() || !device.getName().startsWith("MTO"))
                         return;
                     if (null == device.getName())
@@ -131,7 +130,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                     } else {
                         scannedDevices.put(device, rssi);
                     }
-                    Log.d("sandeep", "device name and rssi: " + device.getName() + "  " + rssi);
+                    LogUtils.log("device name and rssi: " + device.getName() + "  " + rssi);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -251,7 +250,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         mLatestScanCallback = new ScanCallback() {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
-                Log.d("sandeep", "new Device: " + result.toString() + " " + result.describeContents());
+                LogUtils.log("new Device: " + result.toString() + " " + result.describeContents());
                 final BluetoothDevice device = result.getDevice();
                 int rssi = result.getRssi();
                 if (device == null)
@@ -271,7 +270,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                 } else {
                     scannedDevices.put(device, rssi);
                 }
-                Log.d("sandeep", "device name and rssi: " + device.getName() + "  " + rssi);
+                LogUtils.log("device name and rssi: " + device.getName() + "  " + rssi);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -290,11 +289,11 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if ((SpeedDetectionService.class).getName().equals(service.service.getClassName())) {
-                Log.d("sandeep", "Running");
+                LogUtils.log("Running");
                 return true;
             }
         }
-        Log.d("sandeep", "Not Running");
+        LogUtils.log("Not Running");
         return false;
 
     }
@@ -345,7 +344,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         mLongitude = location.getLongitude();
        /* mToast.setText("Current speed:" + location.getSpeed());
         mToast.show();*/
-        Log.d("sandeep", "" + location.getSpeed());
+        LogUtils.log("" + location.getSpeed());
         if (!location.hasSpeed() || location.getSpeed() == 0) {
             Location locationNET = ((LocationManager) this.getSystemService(Context.LOCATION_SERVICE)).getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             if (null != locationNET)
@@ -465,7 +464,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         int drawableId = Integer.MIN_VALUE;
         BLETag tag = queryDataBase(device);
         if (tag != null) {
-            Log.d("sandeep", "tag from db: " + tag.toString());
+            LogUtils.log("tag from db: " + tag.toString());
             String imageID = tag.getFileName();
             if (tag.getMessage() != null)
                 message = tag.getMessage();
@@ -510,7 +509,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         int drawableId = Integer.MIN_VALUE;
         BLETag tag = queryDataBase(device);
         if (tag != null) {
-            Log.d("sandeep", "tag from db: " + tag.toString());
+            LogUtils.log("tag from db: " + tag.toString());
             String imageID = tag.getFileName();
             if (tag.getMessage() != null)
                 message = tag.getMessage();
@@ -543,7 +542,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
     protected static void deletePreviousData() {
 
         File dir = new File(Environment.getExternalStorageDirectory() + File.separator + DIR_NAME);
-        Log.d("sandeep1", "" + dir);
+        LogUtils.log("" + dir);
         if (dir.isDirectory()) {
             String[] children = dir.list();
             for (int i = 0; i < children.length; i++) {
@@ -557,7 +556,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
     protected void onResume() {
         super.onResume();
         _instance = this;
-        Log.d("sandeep", isExternalStorageReadable() + " " + isExternalStorageWritable());
+        LogUtils.log(isExternalStorageReadable() + " " + isExternalStorageWritable());
         // Ensures Bluetooth is enabled on the device.  If Bluetooth is not currently enabled,
         // fire an intent to display a dialog asking the user to grant permission to enable it.
         if (!mBluetoothAdapter.isEnabled()) {
@@ -709,7 +708,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
 
             @Override
             public void run() {
-                Log.d("sandeep", "vibrator called " + device.getName() + " " + rssi);
+                LogUtils.log("vibrator called " + device.getName() + " " + rssi);
                 if (scannedDevices.containsKey(device))
                     return;
                 if (Settings.vibration) {
@@ -737,8 +736,8 @@ public class ScanningActivity extends ListActivity implements LocationListener {
     protected void writeDatatoFile(BluetoothDevice device, int rssi) {
         File f = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + DIR_NAME + File.separator);
         File temp = new File(f.getAbsolutePath() + File.separator + "data.csv");
-        Log.d("sandeep1", f.getAbsolutePath() + " " + temp.getAbsolutePath());
-        Log.d("sandeep1", "" + (f.exists()) + " " + temp.exists());
+        LogUtils.log(f.getAbsolutePath() + " " + temp.getAbsolutePath());
+        LogUtils.log("" + (f.exists()) + " " + temp.exists());
         CSVWriter writer = null;
         if (!temp.exists()) {
             if (!f.exists())
@@ -779,7 +778,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         }
 
 
-        Log.d("sandeep1", "" + f.exists());
+        LogUtils.log("" + f.exists());
     }
 
     /*Stop Scanning for Bluetooth Devices*/

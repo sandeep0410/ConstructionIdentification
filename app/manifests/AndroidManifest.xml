@@ -44,6 +44,11 @@
             android:launchMode="singleInstance"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/Theme.Transparent" />
+        <activity
+            android:name=".imagewarning.ImageWarningActivity"
+            android:launchMode="singleInstance"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/Theme.Transparent" />
 
         <service android:name="com.umn.mto.android.workzonealert.SpeedDetectionService"></service>
 
@@ -58,6 +63,12 @@
             <intent-filter android:priority="-1">
                 <action android:name="com.umn.mto.android.warning.RAISE" />
                 <action android:name="com.umn.mto.android.warning.STOP" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".imagewarning.ImageWarningReceiver">
+            <intent-filter android:priority="-1">
+                <action android:name="com.umn.mto.android.imagewarning.RAISE" />
+                <action android:name="com.umn.mto.android.imagewarning.STOP" />
             </intent-filter>
         </receiver>
         <receiver android:name=".receiver.AlarmReceiver">
