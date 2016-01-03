@@ -33,6 +33,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -48,9 +49,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.opencsv.CSVWriter;
+import com.umn.mto.android.workzonealert.db.DBSQLiteHelper;
 import com.umn.mto.android.workzonealert.dto.BLETag;
 import com.umn.mto.android.workzonealert.dto.BluetoothDeviceObject;
-import com.umn.mto.android.workzonealert.db.DBSQLiteHelper;
 import com.umn.mto.android.workzonealert.settings.ImageNotificationDialogFragment;
 import com.umn.mto.android.workzonealert.settings.SettingDialogFragment;
 import com.umn.mto.android.workzonealert.settings.Settings;
@@ -93,6 +94,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
     private Toast mToast;
     private int mSdkVersion;
     TextToSpeech tts;
+    AudioManager audiomanager;
     ScheduledExecutorService mExecutor;
     volatile private Map<String, BluetoothDeviceObject> currentScannedList = new HashMap<String, BluetoothDeviceObject>();
     private Runnable mRunnable = new Runnable() {
@@ -198,10 +200,38 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         }
         createDistanceDialog();
         //createImageWarningDialog();
+        audiomanager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         tts = new TextToSpeech(ScanningActivity.this, new TextToSpeech.OnInitListener() {
 
             @Override
             public void onInit(int status) {
+
+            }
+        });
+
+        tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+            @Override
+            public void onStart(String s) {
+                int curVolume = Integer.parseInt(s);
+                LogUtils.log("Utterance started: "+curVolume);
+                if (curVolume < (.5 * audiomanager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)))
+
+                {
+                    audiomanager.setStreamVolume(AudioManager.STREAM_MUSIC, (int) (.5 * audiomanager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)), 0);
+                }
+                LogUtils.log("after starting: " +audiomanager.getStreamVolume(AudioManager.STREAM_MUSIC));
+            }
+
+            @Override
+            public void onDone(String s) {
+                LogUtils.log("after completion: " +audiomanager.getStreamVolume(AudioManager.STREAM_MUSIC));
+                int curVolume = Integer.parseInt(s);
+                LogUtils.log("Utterance completed: "+curVolume);
+                audiomanager.setStreamVolume(AudioManager.STREAM_MUSIC, curVolume, 0);
+            }
+
+            @Override
+            public void onError(String s) {
 
             }
         });
@@ -212,7 +242,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
     private void createImageMap() {
         imageIDs.put("trafficwarning.jpg", R.drawable.trafficwarning);
         imageIDs.put("workzone.jpg", R.drawable.workzone);
-        imageIDs.put("image1.jpg",R.drawable.trafficwarning);
+        imageIDs.put("image1.jpg", R.drawable.trafficwarning);
     }
 
     @TargetApi(21)
@@ -370,9 +400,17 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                 createSettingsDialog();
                 break;
             case R.id.test:
+                testTTS();
                 testGeoPositions();
+                break;
         }
         return true;
+    }
+
+    @TargetApi(21)
+    private void testTTS() {
+        String message = "Hello everyone, the quick brown fox jumps over the lazy dog.";
+        tts.speak(message, TextToSpeech.QUEUE_FLUSH, null, "" + audiomanager.getStreamVolume(AudioManager.STREAM_MUSIC));
     }
 
     private void testGeoPositions() {
@@ -434,15 +472,27 @@ public class ScanningActivity extends ListActivity implements LocationListener {
             if (imageID != null)
                 drawableId = imageIDs.get(imageID);
         }
-        if (Settings.display_alert && drawableId>Integer.MIN_VALUE) {
+        if (Settings.display_alert && drawableId > Integer.MIN_VALUE) {
             ImageNotificationDialogFragment dialog = new ImageNotificationDialogFragment();
             Bundle args = new Bundle();
             args.putInt("drawable", drawableId);
             dialog.setArguments(args);
             dialog.show(getFragmentManager(), "image");
         }
-        if (!tts.isSpeaking())
-            tts.speak(message, TextToSpeech.QUEUE_FLUSH, null);
+        if (!tts.isSpeaking()) {
+            speak(tts, message);
+        }
+    }
+
+    private void speak(TextToSpeech tts, String message) {
+        int mode = audiomanager.getRingerMode();
+        int curVolume = audiomanager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        if (curVolume < (.5 * audiomanager.getStreamMaxVolume(AudioManager.STREAM_MUSIC))) {
+            audiomanager.setStreamVolume(AudioManager.STREAM_MUSIC, (int) (.5 * audiomanager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)), 0);
+        }
+        tts.speak(message, TextToSpeech.QUEUE_FLUSH, null);
+        audiomanager.setStreamVolume(AudioManager.STREAM_MUSIC, curVolume, 0);
+        audiomanager.setRingerMode(mode);
     }
 
     private BLETag queryDataBase(BluetoothDevice device) {
@@ -468,10 +518,10 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                 if (imageIDs.containsKey(imageID))
                     drawableId = imageIDs.get(imageID);
                 else
-                    drawableId = R.drawable.trafficwarning;
+                    drawableId = Integer.MIN_VALUE;
             }
         }
-        if (Settings.display_alert && drawableId>Integer.MIN_VALUE) {
+        if (Settings.display_alert && drawableId > Integer.MIN_VALUE) {
             ImageNotificationDialogFragment dialog = new ImageNotificationDialogFragment();
             Bundle args = new Bundle();
             args.putInt("drawable", drawableId);
@@ -479,8 +529,9 @@ public class ScanningActivity extends ListActivity implements LocationListener {
             dialog.show(getFragmentManager(), "image");
         }
 
-        if (!tts.isSpeaking())
-            tts.speak(message, TextToSpeech.QUEUE_FLUSH, null, null);
+        if (!tts.isSpeaking()) {
+            tts.speak(message, TextToSpeech.QUEUE_FLUSH, null, ""+audiomanager.getStreamVolume(AudioManager.STREAM_MUSIC));
+        }
     }
 
     private void deleteCSVfile() {
@@ -605,7 +656,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
 
     private void startWritingService() {
         mExecutor = Executors.newScheduledThreadPool(1);
-        mExecutor.scheduleAtFixedRate(mRunnable, 1, 1, TimeUnit.SECONDS);
+        mExecutor.scheduleAtFixedRate(mRunnable, 200, 200, TimeUnit.MILLISECONDS);
     }
 
     @TargetApi(21)
@@ -712,7 +763,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                 name = "Unknown";
             String[] entries = {
                     (c.get(Calendar.MONTH) + 1) + "/" + c.get(Calendar.DAY_OF_MONTH)
-                            + "/" + c.get(Calendar.YEAR) + " " + c.get(Calendar.HOUR) + ":" + c.get(Calendar.MINUTE) + ":" + c.get(Calendar.SECOND) + " " + (c.get(Calendar.AM_PM) == 0 ? "AM" : "PM"),
+                            + "/" + c.get(Calendar.YEAR) + " " + c.get(Calendar.HOUR) + ":" + c.get(Calendar.MINUTE) + ":" + c.get(Calendar.SECOND) + "." + c.get(Calendar.MILLISECOND) + " " + (c.get(Calendar.AM_PM) == 0 ? "AM" : "PM"),
                     name,
                     address,
                     Integer.toString(rssi),

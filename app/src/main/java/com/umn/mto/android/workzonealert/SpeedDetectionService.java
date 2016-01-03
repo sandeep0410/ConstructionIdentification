@@ -39,8 +39,8 @@ public class SpeedDetectionService extends Service {
     private boolean network_enabled = false;
     private Handler handler = new Handler();
     SharedPreferences mPrefs;
-    double updateLat = -1;
-    double updateLon = -1;
+    public static double updateLat = -1;
+    public static double updateLon = -1;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -136,7 +136,6 @@ public class SpeedDetectionService extends Service {
             // TODO Auto-generated method stub
         /*    Toast.makeText(getApplicationContext(), "Current speed:" + location.getSpeed(),
                 Toast.LENGTH_SHORT).show();*/
-            Log.d("sandeep", "" + location.getSpeed());
             if (!location.hasSpeed() || location.getSpeed() == 0) {
                 Location locationNET = ((LocationManager) getSystemService(Context.LOCATION_SERVICE)).getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                 if (null != locationNET) {
@@ -167,7 +166,6 @@ public class SpeedDetectionService extends Service {
             }
 
             if (location != null) {
-                Log.d("sandeep","calling update function");
                 updateDBifRequired(location);
             }
         }

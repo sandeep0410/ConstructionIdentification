@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.umn.mto.android.workzonealert.SpeedDetectionService;
 import com.umn.mto.android.workzonealert.dto.BLETag;
 import com.umn.mto.android.workzonealert.dto.WorkZonePoint;
 
@@ -32,6 +33,7 @@ public class DbDownloader extends Thread {
         try {
             mContext = context;
             url = new URL("http://128.101.111.92:8080/ConstructionServer/constructionserver");
+            //url = new URL("http://10.0.0.47:8080/ConstructionServer/constructionserver");
             this.table = table;
         } catch (MalformedURLException e) {
             //e.printStackTrace();
@@ -93,8 +95,11 @@ public class DbDownloader extends Thread {
 
     public String downloadTable() {
         try {
-            urlConnection = (HttpURLConnection) new URL(url.toString() + "?" + table).openConnection();
-            urlConnection.setRequestProperty("Table", "geofences");
+            urlConnection = (HttpURLConnection) new URL(url.toString() + "?table=" + table+"&latitude="+SpeedDetectionService.updateLat
+            +"&longitude="+SpeedDetectionService.updateLon).openConnection();
+            /*urlConnection.setRequestProperty("Table", "geofences");
+            urlConnection.setRequestProperty("latitude", ""+SpeedDetectionService.updateLat);
+            urlConnection.setRequestProperty("longitude", ""+SpeedDetectionService.updateLon);*/
             urlConnection.setConnectTimeout(2000);
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
             //********Reading Response From Server********
