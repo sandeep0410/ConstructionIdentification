@@ -2,11 +2,13 @@ package com.umn.mto.android.workzonealert.db;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
+import android.location.Location;
 
+import com.umn.mto.android.workzonealert.LogUtils;
 import com.umn.mto.android.workzonealert.dto.BLETag;
 import com.umn.mto.android.workzonealert.dto.WorkZonePoint;
 
@@ -121,6 +123,35 @@ public class DBSQLiteHelper extends SQLiteOpenHelper {
         return wzPoints;
     }
 
+    public List<Integer> getWorkZoneIDs(){
+        List<Integer> list =new ArrayList<>();
+        String query = "SELECT DISTINCT "+DBUtils.WZ_ID+" from "+DBUtils.WZ_TABLE+" ORDER BY "+DBUtils.WZ_ID+";";
+        SQLiteDatabase db  = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        if(cursor.moveToFirst()){
+            do {
+                list.add(Integer.parseInt(cursor.getString(1)));
+            }while(cursor.moveToNext());
+        }
+        return list;
+    }
+
+    public List<Location> getWorkZonePoints(int id){
+        List<Location> list = new ArrayList<>();
+        String query = "SELECT "+DBUtils.WZ_LATITUDE+", "+DBUtils.WZ_LONGITUDE+" FROM "+DBUtils.WZ_TABLE+" WHERE "+DBUtils.WZ_ID+" = "+id +" ORDER BY " +DBUtils.WZ_POINT_ID+";";
+        SQLiteDatabase db  =this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        if(cursor.moveToFirst()){
+            do{
+                Location loc = new Location(String.valueOf(id));
+                loc.setLatitude(Double.parseDouble(cursor.getString(1)));
+                loc.setLongitude(Double.parseDouble(cursor.getString(2)));
+                list.add(loc);
+            }while(cursor.moveToNext());
+        }
+        return list;
+    }
+
     public List<BLETag> getAllBLEData() {
         List<BLETag> bleTags = new ArrayList<BLETag>();
         String selectQuery = "SELECT *FROM " + DBUtils.BLETAG_TABLE;
@@ -152,7 +183,7 @@ public class DBSQLiteHelper extends SQLiteOpenHelper {
 
     public BLETag getBleTag(String address) {
         String query = "SELECT * FROM " + DBUtils.BLETAG_TABLE + " WHERE " + DBUtils.BLETAG_BLE_MAC + " LIKE '%" + address + "%'";
-        Log.d("sandeep", "printing query: " + query);
+        LogUtils.log("printing query: " + query);
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         BLETag bt = null;
@@ -170,7 +201,7 @@ public class DBSQLiteHelper extends SQLiteOpenHelper {
                 bt.setFileName(cursor.getString(8));
             } while (cursor.moveToNext());
         }
-        Log.d("sandeep", "printing after query: " + bt);
+        LogUtils.log("printing after query: " + bt);
         db.close();
         return bt;
     }

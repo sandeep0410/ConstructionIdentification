@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.umn.mto.android.workzonealert.receiver.AlarmReceiver;
@@ -39,6 +38,8 @@ public class SpeedDetectionService extends Service {
     private boolean network_enabled = false;
     private Handler handler = new Handler();
     SharedPreferences mPrefs;
+    private BLEScanner mScanner;
+    private WZChecker wzChecker;
     public static double updateLat = -1;
     public static double updateLon = -1;
 
@@ -59,7 +60,6 @@ public class SpeedDetectionService extends Service {
 
         final Runnable r = new Runnable() {
             public void run() {
-                Log.v("Debug", "Hello");
                 location();
             }
         };
@@ -103,16 +103,16 @@ public class SpeedDetectionService extends Service {
             network_enabled = locManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
         } catch (Exception ex) {
         }
-        Log.v("Debug", "in on create.. 2");
+        LogUtils.log("in on create.. 2");
         if (gps_enabled) {
             locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locListener);
-            Log.v("Debug", "Enabled..");
+            LogUtils.log("Enabled..");
         }
         if (network_enabled) {
             locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locListener);
-            Log.v("Debug", "Disabled..");
+            LogUtils.log("Disabled..");
         }
-        Log.v("Debug", "in on create..3");
+        LogUtils.log("in on create..3");
     }
 
 
@@ -167,6 +167,17 @@ public class SpeedDetectionService extends Service {
 
             if (location != null) {
                 updateDBifRequired(location);
+            }
+
+            if (!(ScanningActivity.getInstance() != null && ScanningActivity.mScanning)) {
+                if (BLEScanner.getInstance() == null || BLEScanner.getInstance().isScanning() == false) {
+                    if(WZChecker.getInstance()==null){
+                        wzChecker = new WZChecker(getApplicationContext(), location);
+                        mScanner = new BLEScanner(getApplicationContext());
+                        wzChecker.checkScan(mScanner);
+                    }
+
+                }
             }
         }
 

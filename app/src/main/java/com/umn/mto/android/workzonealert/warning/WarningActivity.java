@@ -3,7 +3,8 @@ package com.umn.mto.android.workzonealert.warning;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.util.Log;
+
+import com.umn.mto.android.workzonealert.LogUtils;
 
 /**
  * Created by Sandeep on 9/29/2015.
@@ -15,7 +16,7 @@ public class WarningActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("sandeep", "inside warning activity: ");
+        LogUtils.log("inside warning activity: ");
 
         final AlertDialog d = new AlertDialog.Builder(this)
                 .setMessage("Speed is over limit. Reduce to activate phone")

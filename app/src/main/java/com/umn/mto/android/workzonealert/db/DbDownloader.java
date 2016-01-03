@@ -2,10 +2,10 @@ package com.umn.mto.android.workzonealert.db;
 
 
 import android.content.Context;
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.umn.mto.android.workzonealert.LogUtils;
 import com.umn.mto.android.workzonealert.SpeedDetectionService;
 import com.umn.mto.android.workzonealert.dto.BLETag;
 import com.umn.mto.android.workzonealert.dto.WorkZonePoint;
@@ -50,12 +50,12 @@ public class DbDownloader extends Thread {
                     List<WorkZonePoint> geofence = parseGeofenceData(data);
                     if (null != geofence) {
                         db.deleteAll(table);
-                        Log.d("sandeep", "printing after first delete");
+                        LogUtils.log("printing after first delete");
                         printWorkZoneData(db);
                         for (WorkZonePoint wz : geofence) {
                             db.addWorkZoneData(wz);
                         }
-                        Log.d("sandeep", "printing after dataa addition");
+                        LogUtils.log("printing after dataa addition");
                         printWorkZoneData(db);
                     }
                     break;
@@ -63,12 +63,12 @@ public class DbDownloader extends Thread {
                     List<BLETag> bletags = parseBLE(data);
                     if (null != bletags) {
                         db.deleteAll(table);
-                        Log.d("sandeep", "BTprinting after first delete");
+                        LogUtils.log("BTprinting after first delete");
                         printBluetootheData(db);
                         for (BLETag bt : bletags) {
                             db.addBLETagData(bt);
                         }
-                        Log.d("sandeep", "BTprinting after dataa addition");
+                        LogUtils.log("BTprinting after dataa addition");
                         printBluetootheData(db);
                     }
                     break;
@@ -81,7 +81,7 @@ public class DbDownloader extends Thread {
         {
             List<BLETag> arr = db.getAllBLEData();
             for (BLETag w : arr) {
-                Log.d("sandeep", w.toString());
+                LogUtils.log(w.toString());
             }
         }
     }
@@ -89,7 +89,7 @@ public class DbDownloader extends Thread {
     private void printWorkZoneData(DBSQLiteHelper db) {
         List<WorkZonePoint> arr = db.getAllWorkZoneData();
         for (WorkZonePoint w : arr) {
-           Log.d("sandeep", w.toString());
+           LogUtils.log(w.toString());
         }
     }
 
@@ -128,7 +128,7 @@ public class DbDownloader extends Thread {
         }.getType();
         List<BLETag> pojoList = gson.fromJson(data, listType);
         if (pojoList == null) {
-            Log.d("sandeep", "null parsed");
+            LogUtils.log("null parsed");
             return null;
         }
         return pojoList;
@@ -140,7 +140,7 @@ public class DbDownloader extends Thread {
         }.getType();
         List<WorkZonePoint> pojoList = gson.fromJson(data, listType);
         if (pojoList == null) {
-            Log.d("sandeep", "null parsed");
+            LogUtils.log("null parsed");
             return null;
         }
         return pojoList;
