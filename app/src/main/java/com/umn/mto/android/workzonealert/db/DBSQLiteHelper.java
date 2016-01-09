@@ -128,9 +128,10 @@ public class DBSQLiteHelper extends SQLiteOpenHelper {
         String query = "SELECT DISTINCT "+DBUtils.WZ_ID+" from "+DBUtils.WZ_TABLE+" ORDER BY "+DBUtils.WZ_ID+";";
         SQLiteDatabase db  = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
+        LogUtils.log(query);
         if(cursor.moveToFirst()){
             do {
-                list.add(Integer.parseInt(cursor.getString(1)));
+                list.add(Integer.parseInt(cursor.getString(0)));
             }while(cursor.moveToNext());
         }
         return list;
@@ -144,8 +145,8 @@ public class DBSQLiteHelper extends SQLiteOpenHelper {
         if(cursor.moveToFirst()){
             do{
                 Location loc = new Location(String.valueOf(id));
-                loc.setLatitude(Double.parseDouble(cursor.getString(1)));
-                loc.setLongitude(Double.parseDouble(cursor.getString(2)));
+                loc.setLatitude(Double.parseDouble(cursor.getString(0)));
+                loc.setLongitude(Double.parseDouble(cursor.getString(1)));
                 list.add(loc);
             }while(cursor.moveToNext());
         }

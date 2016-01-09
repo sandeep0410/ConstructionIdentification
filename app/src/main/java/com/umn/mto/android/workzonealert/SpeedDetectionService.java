@@ -17,6 +17,7 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
 
+import com.umn.mto.android.workzonealert.imagewarning.ImageWarningActivity;
 import com.umn.mto.android.workzonealert.receiver.AlarmReceiver;
 import com.umn.mto.android.workzonealert.receiver.PhoneCallStateListener;
 import com.umn.mto.android.workzonealert.settings.Settings;
@@ -168,10 +169,11 @@ public class SpeedDetectionService extends Service {
             if (location != null) {
                 updateDBifRequired(location);
             }
-
+            LogUtils.log("Location Update received");
             if (!(ScanningActivity.getInstance() != null && ScanningActivity.mScanning)) {
                 if (BLEScanner.getInstance() == null || BLEScanner.getInstance().isScanning() == false) {
-                    if(WZChecker.getInstance()==null){
+                    if(WZChecker.getInstance()==null && ImageWarningActivity.getInstance()==null){
+                        LogUtils.log("Starting Scan");
                         wzChecker = new WZChecker(getApplicationContext(), location);
                         mScanner = new BLEScanner(getApplicationContext());
                         wzChecker.checkScan(mScanner);
