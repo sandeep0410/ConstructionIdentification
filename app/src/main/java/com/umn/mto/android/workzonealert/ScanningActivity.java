@@ -418,35 +418,41 @@ public class ScanningActivity extends ListActivity implements LocationListener {
         List<Location> list = new ArrayList<Location>();
 
         Location location = new Location("ManualTest");
-        location.setLatitude(41.893368);
-        location.setLongitude(-87.622709);
+        location.setLatitude(44.98032);
+        location.setLongitude(-93.230682);
 
         Location location1 = new Location("ManualTest");
-        location1.setLatitude(41.893447);
-        location1.setLongitude(-87.617795);
+        location1.setLatitude(44.979361);
+        location1.setLongitude(-93.231338);
 
         Location location2 = new Location("ManualTest");
-        location2.setLatitude(41.891075);
-        location2.setLongitude(-87.617709);
+        location2.setLatitude(44.978404);
+        location2.setLongitude(-93.228698);
 
         Location location3 = new Location("ManualTest");
-        location3.setLatitude(41.890956);
-        location3.setLongitude(-87.622644);
+        location3.setLatitude(44.979521);
+        location3.setLongitude(-93.227868);
 
         Location test1 = new Location("ManualTest");
-        test1.setLatitude(41.892689);
-        test1.setLongitude(-87.614630);
+        test1.setLatitude(44.980005);
+        test1.setLongitude(-93.231357);
 
         Location test2 = new Location("ManualTest");
-        test2.setLatitude(41.892625);
-        test2.setLongitude(-87.620263);
+        test2.setLatitude(44.979711);
+        test2.setLongitude(-93.230560);
+
+        Location test3 = new Location("ManualTest");
+        test3.setLatitude(44.979122);
+        test3.setLongitude(-93.233964);
 
         list.add(location);
         list.add(location1);
         list.add(location2);
         list.add(location3);
 
-        mToast.setText("Result: " + test1.getLatitude() + " " + test1.getLongitude() + validator.isPointInPolygon(list, test1));
+        mToast.setText("Result: " + test1.getLatitude() + " " + test1.getLongitude() + validator.isPointInPolygon(list, test1)
+        +"\n Result: " + test2.getLatitude() + " " + test2.getLongitude() + validator.isPointInPolygon(list, test2)
+        +"\n Result: " + test3.getLatitude() + " " + test3.getLongitude() + validator.isPointInPolygon(list, test3));
         mToast.show();
         //mToast.setText("Result: " +test2.getLatitude() +" " +test2.getLongitude() + validator.isPointInPolygon(list, test2));
         //mToast.show();

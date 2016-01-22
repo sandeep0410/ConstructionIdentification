@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
+import android.webkit.ConsoleMessage;
 
 import com.umn.mto.android.workzonealert.LogUtils;
 import com.umn.mto.android.workzonealert.dto.BLETag;
@@ -145,8 +146,8 @@ public class DBSQLiteHelper extends SQLiteOpenHelper {
         if(cursor.moveToFirst()){
             do{
                 Location loc = new Location(String.valueOf(id));
-                loc.setLatitude(Double.parseDouble(cursor.getString(0)));
-                loc.setLongitude(Double.parseDouble(cursor.getString(1)));
+                loc.setLatitude(cursor.getDouble(0));
+                loc.setLongitude(cursor.getDouble(1));
                 list.add(loc);
             }while(cursor.moveToNext());
         }

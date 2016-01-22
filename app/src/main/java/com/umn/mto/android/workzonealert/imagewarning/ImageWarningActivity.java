@@ -55,6 +55,7 @@ public class ImageWarningActivity extends Activity {
     protected void onPause() {
         super.onPause();
         _instance = null;
+        finish();
     }
 
     public void close() {
