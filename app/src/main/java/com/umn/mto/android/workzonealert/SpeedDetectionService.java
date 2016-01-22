@@ -177,6 +177,7 @@ public class SpeedDetectionService extends Service {
                         wzChecker = new WZChecker(getApplicationContext(), location);
                         mScanner = new BLEScanner(getApplicationContext());
                         wzChecker.checkScan(mScanner);
+                        LogUtils.log("Scannign started");
                     }
 
                 }

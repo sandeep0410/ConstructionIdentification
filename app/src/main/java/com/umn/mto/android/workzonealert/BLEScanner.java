@@ -72,7 +72,7 @@ public class BLEScanner {
         @Override
         public void run() {
 
-            LogUtils.log("writing.. " + currentScannedList.size());
+           // LogUtils.log("writing.. " + currentScannedList.size());
             for (Map.Entry<String, BluetoothDeviceObject> bluetoothobject : currentScannedList.entrySet()) {
                 writeDatatoFile(bluetoothobject.getValue().device, bluetoothobject.getValue().rssi);
             }
@@ -109,6 +109,7 @@ public class BLEScanner {
 
         createImageMap();
         initializeAudioItems();
+        _instance = this;
     }
 
     private void createImageMap() {
@@ -169,7 +170,7 @@ public class BLEScanner {
         mLatestScanCallback = new ScanCallback() {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
-                LogUtils.log("new Device: " + result.toString() + " " + result.describeContents());
+               // LogUtils.log("new Device: " + result.toString() + " " + result.describeContents());
                 final BluetoothDevice device = result.getDevice();
                 int rssi = result.getRssi();
                 if (device == null)
@@ -189,13 +190,14 @@ public class BLEScanner {
                 } else {
                     scannedDevices.put(device, rssi);
                 }
-                LogUtils.log("device name and rssi: " + device.getName() + "  " + rssi);
+               // LogUtils.log("device name and rssi: " + device.getName() + "  " + rssi);
             }
         };
 
     }
 
     protected void startNotificationToneAndVibrate(final BluetoothDevice device, final int rssi) {
+        if (ImageWarningActivity.getInstance() == null) {
         Thread vibrate = new Thread(new Runnable() {
 
             @Override
@@ -216,7 +218,7 @@ public class BLEScanner {
         });
         vibrate.start();
         //ImageWarningActivity.getInstance();
-        if (ImageWarningActivity.getInstance() == null && ScanningActivity.getInstance() == null) {
+
             createImageWarningDialog(device, rssi);
 
         }
@@ -294,6 +296,7 @@ public class BLEScanner {
                     .build();
             List<ScanFilter> filters = new ArrayList<ScanFilter>();
             mScanner.startScan(filters, settings, mLatestScanCallback);
+            LogUtils.writeToFile("started");
         }
     }
 
@@ -301,6 +304,7 @@ public class BLEScanner {
     private void StopScanForLatestAndroid() {
         if (null != mScanner) {
             mScanner.stopScan(mLatestScanCallback);
+            LogUtils.writeToFile("stopped");
         }
     }
 
