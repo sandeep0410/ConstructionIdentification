@@ -17,7 +17,7 @@ public class ImageWarningReceiver extends BroadcastReceiver{
         if(action.equals(RAISE_IMAGEWARNING)){
             Intent i = new Intent();
             i.setClassName("com.umn.mto.android.workzonealert", "com.umn.mto.android.workzonealert.imagewarning.ImageWarningActivity");
-            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |Intent.FLAG_ACTIVITY_CLEAR_TASK);
             i.putExtra("drawable",intent.getIntExtra("drawable",0));
             context.startActivity(i);
         }else if(action.equals(STOP_IMAGEWARNING)){

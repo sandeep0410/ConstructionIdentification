@@ -28,5 +28,6 @@
     <string name="enable_calls">Enable incoming/outgoing calls</string>
     <string name="test">Test</string>
     <string name="rssi_label">RSSI Threshhold (-20 to -128)</string>
+    <string name="manual_download">Download DB</string>
 
 </resources>

@@ -367,8 +367,8 @@ public class BLEScanner {
                     Integer.toString(rssi),
                     mDistance,
                     "" + SpeedDetectionService.mSpeed,
-                    "" + SpeedDetectionService.updateLat,
-                    "" + SpeedDetectionService.updateLon
+                    "" + SpeedDetectionService.mLatitude,
+                    "" + SpeedDetectionService.mLongitude
             };
             writer.writeNext(entries);
             writer.close();
