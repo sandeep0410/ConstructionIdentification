@@ -32,6 +32,8 @@ public class SpeedDetectionService extends Service {
 
     static final Double EARTH_RADIUS = 6371.00;
     public static float mSpeed = 0;
+    public static double mLatitude=0;
+    public static double mLongitude=0;
     Thread t;
     private LocationManager locManager;
     private LocationListener locListener = new myLocationListener();
@@ -57,6 +59,8 @@ public class SpeedDetectionService extends Service {
         mPrefs = this.getSharedPreferences(
                 "com.umn.mto.android.workzonealert", Context.MODE_PRIVATE);
         mSpeed = mPrefs.getFloat("Speed", mSpeed);
+        mLatitude = mPrefs.getFloat("DatabaseUpdateLatitude", -1);
+        mLongitude = mPrefs.getFloat("DatabaseUpdateLongitude", -1);
         startForeground(1, getNotification());
 
         final Runnable r = new Runnable() {
@@ -137,6 +141,8 @@ public class SpeedDetectionService extends Service {
             // TODO Auto-generated method stub
         /*    Toast.makeText(getApplicationContext(), "Current speed:" + location.getSpeed(),
                 Toast.LENGTH_SHORT).show();*/
+            mLatitude = location.getLatitude();
+            mLongitude = location.getLongitude();
             if (!location.hasSpeed() || location.getSpeed() == 0) {
                 Location locationNET = ((LocationManager) getSystemService(Context.LOCATION_SERVICE)).getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                 if (null != locationNET) {

@@ -14,7 +14,8 @@ public class Util {
         LogUtils.log("cm value: " + cm);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         LogUtils.log("netinfo value: " + netInfo);
-        LogUtils.log("is connecting " + netInfo.isConnectedOrConnecting());
+        if (netInfo != null)
+            LogUtils.log("is connecting " + netInfo.isConnectedOrConnecting());
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }

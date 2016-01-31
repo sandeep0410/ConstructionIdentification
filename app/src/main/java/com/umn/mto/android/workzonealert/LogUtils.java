@@ -51,8 +51,8 @@ public class LogUtils {
                             + "/" + c.get(Calendar.YEAR) + " " + c.get(Calendar.HOUR) + ":" + c.get(Calendar.MINUTE) + ":" + c.get(Calendar.SECOND) + "." + c.get(Calendar.MILLISECOND) + " " + (c.get(Calendar.AM_PM) == 0 ? "AM" : "PM"),
                     status,
                     "" + SpeedDetectionService.mSpeed,
-                    "" + SpeedDetectionService.updateLat,
-                    "" + SpeedDetectionService.updateLon
+                    "" + SpeedDetectionService.mLatitude,
+                    "" + SpeedDetectionService.mLongitude
             };
             writer.writeNext(entries);
             writer.close();

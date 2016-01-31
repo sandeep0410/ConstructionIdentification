@@ -49,6 +49,7 @@ import android.widget.Toast;
 
 import com.opencsv.CSVWriter;
 import com.umn.mto.android.workzonealert.db.DBSQLiteHelper;
+import com.umn.mto.android.workzonealert.db.DbDownloader;
 import com.umn.mto.android.workzonealert.dto.BLETag;
 import com.umn.mto.android.workzonealert.dto.BluetoothDeviceObject;
 import com.umn.mto.android.workzonealert.settings.ImageNotificationDialogFragment;
@@ -388,6 +389,16 @@ public class ScanningActivity extends ListActivity implements LocationListener {
             case R.id.enter_distance:
                 scanLeDevice(false);
                 createDistanceDialog();
+                break;
+            case R.id.database:
+                if (Util.isOnline(this)) {
+                    DBSQLiteHelper db = new DBSQLiteHelper(this);
+                    DbDownloader downloadWZ = new DbDownloader(this, "geofences");
+                    DbDownloader downloadBT = new DbDownloader(this, "ble_tags");
+                    //***** Download WZ table and update local database****//
+                    downloadWZ.start();
+                    downloadBT.start();
+                }
                 break;
            /* case R.id.enable_calls_driving:
                 stopService(new Intent(ScanningActivity.this, SpeedDetectionService.class));
