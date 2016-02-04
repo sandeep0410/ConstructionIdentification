@@ -18,7 +18,6 @@ public class AlarmReceiver extends BroadcastReceiver {
         if (intent.getAction()!=null && intent.getAction().equals("com.umn.mto.android.DOWNLOAD.START"))
             LogUtils.log("Received Broadcast");
         if (Util.isOnline(context)) {
-            DBSQLiteHelper db = new DBSQLiteHelper(context);
             DbDownloader downloadWZ = new DbDownloader(context, "geofences");
             DbDownloader downloadBT = new DbDownloader(context, "ble_tags");
             //***** Download WZ table and update local database****//

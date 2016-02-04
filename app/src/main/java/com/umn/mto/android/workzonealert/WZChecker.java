@@ -48,7 +48,7 @@ public class WZChecker {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                DBSQLiteHelper db = new DBSQLiteHelper(mContext);
+                DBSQLiteHelper db = DBSQLiteHelper.getInstance(mContext);
                 List<Integer> workzones = db.getWorkZoneIDs();
                 for(int id: workzones){
                     List<Location> locations = db.getWorkZonePoints(id);

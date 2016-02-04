@@ -18,6 +18,7 @@ import com.umn.mto.android.workzonealert.R;
  */
 public class ImageWarningActivity extends Activity {
     static ImageWarningActivity _instance = null;
+    AlertDialog dialog;
 
     int drawableID;
 
@@ -40,7 +41,7 @@ public class ImageWarningActivity extends Activity {
                 finish();
             }
         });
-        AlertDialog dialog = builder.create();
+        dialog = builder.create();
         dialog.setCanceledOnTouchOutside(true);
         dialog.show();
     }
@@ -55,11 +56,10 @@ public class ImageWarningActivity extends Activity {
     protected void onPause() {
         super.onPause();
         _instance = null;
-        finish();
-    }
-
-    public void close() {
-        _instance = null;
+        if (dialog != null) {
+            dialog.dismiss();
+            dialog = null;
+        }
         finish();
     }
 
