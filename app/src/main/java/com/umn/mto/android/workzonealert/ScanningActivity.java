@@ -392,7 +392,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
                 break;
             case R.id.database:
                 if (Util.isOnline(this)) {
-                    DBSQLiteHelper db = new DBSQLiteHelper(this);
+                    DBSQLiteHelper db = DBSQLiteHelper.getInstance(this);
                     DbDownloader downloadWZ = new DbDownloader(this, "geofences");
                     DbDownloader downloadBT = new DbDownloader(this, "ble_tags");
                     //***** Download WZ table and update local database****//
@@ -512,7 +512,7 @@ public class ScanningActivity extends ListActivity implements LocationListener {
     }
 
     private BLETag queryDataBase(BluetoothDevice device) {
-        DBSQLiteHelper db = new DBSQLiteHelper(_instance);
+        DBSQLiteHelper db = DBSQLiteHelper.getInstance(_instance);
         if (db == null)
             return null;
         return db.getBleTag(device.getAddress());

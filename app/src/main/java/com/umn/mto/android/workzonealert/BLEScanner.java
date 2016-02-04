@@ -72,14 +72,16 @@ public class BLEScanner {
         @Override
         public void run() {
 
-           // LogUtils.log("writing.. " + currentScannedList.size());
+            // LogUtils.log("writing.. " + currentScannedList.size());
             for (Map.Entry<String, BluetoothDeviceObject> bluetoothobject : currentScannedList.entrySet()) {
                 writeDatatoFile(bluetoothobject.getValue().device, bluetoothobject.getValue().rssi);
             }
         }
     };
 
-    public static BLEScanner getInstance() {
+    public static BLEScanner getInstance(Context context) {
+        if(_instance==null)
+            _instance = new BLEScanner(context);
         return _instance;
     }
 
@@ -110,6 +112,8 @@ public class BLEScanner {
         createImageMap();
         initializeAudioItems();
         _instance = this;
+        mVibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
+        mBeep = new ToneGenerator(AudioManager.STREAM_MUSIC, ToneGenerator.MAX_VOLUME);
     }
 
     private void createImageMap() {
@@ -170,7 +174,7 @@ public class BLEScanner {
         mLatestScanCallback = new ScanCallback() {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
-               // LogUtils.log("new Device: " + result.toString() + " " + result.describeContents());
+                // LogUtils.log("new Device: " + result.toString() + " " + result.describeContents());
                 final BluetoothDevice device = result.getDevice();
                 int rssi = result.getRssi();
                 if (device == null)
@@ -190,7 +194,7 @@ public class BLEScanner {
                 } else {
                     scannedDevices.put(device, rssi);
                 }
-               // LogUtils.log("device name and rssi: " + device.getName() + "  " + rssi);
+                // LogUtils.log("device name and rssi: " + device.getName() + "  " + rssi);
             }
         };
 
@@ -198,26 +202,31 @@ public class BLEScanner {
 
     protected void startNotificationToneAndVibrate(final BluetoothDevice device, final int rssi) {
         if (ImageWarningActivity.getInstance() == null) {
-        Thread vibrate = new Thread(new Runnable() {
+            Thread vibrate = new Thread(new Runnable() {
 
-            @Override
-            public void run() {
-                LogUtils.log("vibrator called " + device.getName() + " " + rssi);
-                if (scannedDevices.containsKey(device))
-                    return;
-                if (Settings.vibration) {
-                    mVibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
-                    mVibrator.vibrate(2000);
+                @Override
+                public void run() {
+                    try {
+                        LogUtils.log("vibrator called " + device.getName() + " " + rssi);
+                        if (scannedDevices.containsKey(device))
+                            return;
+                        if (Settings.vibration) {
+                            mVibrator.vibrate(2000);
+                        }
+                        if (Settings.alarm) {
+                            mBeep.startTone(ToneGenerator.TONE_DTMF_0, 2000);
+                            Thread.sleep(2000);
+                            mBeep.release();
+
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    //beep.release();
                 }
-                if (Settings.alarm) {
-                    mBeep = new ToneGenerator(AudioManager.STREAM_MUSIC, ToneGenerator.MAX_VOLUME);
-                    mBeep.startTone(ToneGenerator.TONE_DTMF_0, 2000);
-                }
-                //beep.release();
-            }
-        });
-        vibrate.start();
-        //ImageWarningActivity.getInstance();
+            });
+            vibrate.start();
+            //ImageWarningActivity.getInstance();
 
             createImageWarningDialog(device, rssi);
 
@@ -281,7 +290,7 @@ public class BLEScanner {
     }
 
     private BLETag queryDataBase(BluetoothDevice device) {
-        DBSQLiteHelper db = new DBSQLiteHelper(mContext);
+        DBSQLiteHelper db = DBSQLiteHelper.getInstance(mContext);
         if (db == null)
             return null;
         return db.getBleTag(device.getAddress());
@@ -317,7 +326,7 @@ public class BLEScanner {
         Intent i = new Intent();
         i.setAction(ImageWarningReceiver.STOP_IMAGEWARNING);
         mContext.sendBroadcast(i);
-        _instance=null;
+        _instance = null;
 
     }
 

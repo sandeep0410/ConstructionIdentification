@@ -32,8 +32,8 @@ public class SpeedDetectionService extends Service {
 
     static final Double EARTH_RADIUS = 6371.00;
     public static float mSpeed = 0;
-    public static double mLatitude=0;
-    public static double mLongitude=0;
+    public static double mLatitude = 0;
+    public static double mLongitude = 0;
     Thread t;
     private LocationManager locManager;
     private LocationListener locListener = new myLocationListener();
@@ -177,11 +177,12 @@ public class SpeedDetectionService extends Service {
             }
             LogUtils.log("Location Update received");
             if (!(ScanningActivity.getInstance() != null && ScanningActivity.mScanning)) {
-                if (BLEScanner.getInstance() == null || BLEScanner.getInstance().isScanning() == false) {
-                    if(WZChecker.getInstance()==null && ImageWarningActivity.getInstance()==null){
+                if (mScanner == null || mScanner.isScanning() == false) {
+                    if (WZChecker.getInstance() == null && ImageWarningActivity.getInstance() == null) {
                         LogUtils.log("Starting Scan");
                         wzChecker = new WZChecker(getApplicationContext(), location);
-                        mScanner = new BLEScanner(getApplicationContext());
+                        if (mScanner == null)
+                            mScanner = BLEScanner.getInstance(getApplicationContext());
                         wzChecker.checkScan(mScanner);
                         LogUtils.log("Scannign started");
                     }

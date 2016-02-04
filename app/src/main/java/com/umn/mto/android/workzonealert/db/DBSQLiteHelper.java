@@ -23,9 +23,17 @@ public class DBSQLiteHelper extends SQLiteOpenHelper {
     private static final String WORKZONE_ALERT = "WORKZONE_ALERT";
     private static final int DB_VERSION = 1;
     private static final String KEY_ID = "id";
+    private static DBSQLiteHelper mInstance = null;
 
-    public DBSQLiteHelper(Context context) {
+
+    private DBSQLiteHelper(Context context) {
         super(context, WORKZONE_ALERT, null, DB_VERSION);
+    }
+    public static DBSQLiteHelper getInstance(Context context) {
+        if (mInstance == null ) {
+            mInstance = new DBSQLiteHelper(context.getApplicationContext());
+        }
+        return mInstance;
     }
 
     @Override
@@ -84,8 +92,6 @@ public class DBSQLiteHelper extends SQLiteOpenHelper {
         values.put(DBUtils.WZ_LATITUDE, one.getLat());
         values.put(DBUtils.WZ_LONGITUDE, one.getLon());
         db.insert(DBUtils.WZ_TABLE, null, values);
-        db.close();
-
     }
 
 
@@ -101,7 +107,6 @@ public class DBSQLiteHelper extends SQLiteOpenHelper {
         values.put(DBUtils.BLETAG_FLAG, one.getFlag());
         values.put(DBUtils.BLETAG_FILEPATH, one.getFileName());
         db.insert(DBUtils.BLETAG_TABLE, null, values);
-        db.close();
 
     }
 
@@ -120,7 +125,6 @@ public class DBSQLiteHelper extends SQLiteOpenHelper {
                 wzPoints.add(wzp);
             } while (cursor.moveToNext());
         }
-        db.close();
         return wzPoints;
     }
 
@@ -173,14 +177,12 @@ public class DBSQLiteHelper extends SQLiteOpenHelper {
                 bleTags.add(bt);
             } while (cursor.moveToNext());
         }
-        db.close();
         return bleTags;
     }
 
     public void deleteAll(String table) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("delete from " + table);
-        db.close();
     }
 
     public BLETag getBleTag(String address) {
@@ -204,7 +206,6 @@ public class DBSQLiteHelper extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         LogUtils.log("printing after query: " + bt);
-        db.close();
         return bt;
     }
 }

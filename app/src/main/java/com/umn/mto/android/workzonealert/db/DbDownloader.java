@@ -42,7 +42,7 @@ public class DbDownloader extends Thread {
 
     @Override
     public void run() {
-        DBSQLiteHelper db = new DBSQLiteHelper(mContext);
+        DBSQLiteHelper db = DBSQLiteHelper.getInstance(mContext);
         String data = downloadTable();
         if (data != null) {
             switch (table) {
